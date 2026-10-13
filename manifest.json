@@ -1,0 +1,16 @@
+{
+  "name": "AI EnergoNazorat Platform",
+  "short_name": "EnergoNazorat",
+  "description": "Energiya samaradorligini baholash uchun Energiya nazorati",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B2A4A",
+  "theme_color": "#0B2A4A",
+  "lang": "uz",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
