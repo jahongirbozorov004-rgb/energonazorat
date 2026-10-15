@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B2A4A">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI EnergoNazorat Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121A1D; --panel:#182226; --panel-2:#1E2B30; --panel-3:#233238;
+    --ink:#ECF2F1; --ink-soft:#8FA3A1; --ink-dim:#5E7472;
+    --line:#2A383C; --line-soft:#222E32;
+    --amber:#E3A23C; --amber-dim:#8A6428;
+    --cyan:#57BAC7; --cyan-dim:#2E5E63;
+    --red:#D9694F; --green:#5EA870;
+    --gA:#3FA66B; --gB:#79B454; --gC:#B7C047; --gD:#E0BC3F; --gE:#E39A3C; --gF:#DD7A3C; --gG:#C24A3B;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+  }
+  :root[data-theme="light"]{
+    --bg:#F2F0E7; --panel:#FFFFFF; --panel-2:#F6F4EB; --panel-3:#ECE8DA;
+    --ink:#1B2422; --ink-soft:#54625D; --ink-dim:#8A948C;
+    --line:#DAD5C4; --line-soft:#E7E2D2;
+    --amber:#B4631F; --amber-dim:#E8C79A;
+    --cyan:#1C7A72; --cyan-dim:#CBEAE6;
+    --red:#A6432C; --green:#2E7A50;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{ height:100%; scroll-behavior:smooth; }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    height:100%; background:var(--bg); color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.disp{ font-family:'Manrope',sans-serif; letter-spacing:-0.01em; color:var(--ink); }
+  .mono{ font-family:'IBM Plex Mono',monospace; }
+  a{ color:inherit; }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--amber); color:#1A1200; }
+  :focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  .shell{ display:flex; min-height:100vh; min-height:100dvh; }
+
+  .sidebar{
+    width:246px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--line);
+    padding:22px 16px; padding-top:calc(22px + env(safe-area-inset-top,0px));
+    display:flex; flex-direction:column; gap:22px;
+    position:sticky; top:0; align-self:flex-start; height:100vh; height:100dvh; overflow-y:auto;
+  }
+  .logo{ display:flex; align-items:center; gap:10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.98rem; }
+  .logo svg{ width:21px; height:21px; flex-shrink:0; }
+  .logo .sub{ display:block; font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:0.66rem; color:var(--ink-dim); margin-top:2px; }
+
+  .tabs{ display:flex; flex-direction:column; gap:4px; }
+  .tab{
+    display:flex; align-items:center; gap:10px; padding:10px 11px; border-radius:6px;
+    background:none; border:none; color:var(--ink-soft); font-size:0.85rem; text-align:left; cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  .tab svg{ width:16px; height:16px; flex-shrink:0; opacity:0.85; }
+  .tab:hover{ background:var(--panel-2); color:var(--ink); }
+  .tab.active{ background:var(--panel-3); color:var(--ink); box-shadow:inset 2px 0 0 var(--amber); }
+
+  .sidebar-note{ font-size:0.72rem; color:var(--ink-dim); background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:11px 12px; line-height:1.55; }
+  .sidebar-foot{ margin-top:auto; font-size:0.72rem; color:var(--ink-dim); font-family:'IBM Plex Mono',monospace; line-height:1.6; }
+
+  @media (max-width:860px){
+    .shell{ flex-direction:column; }
+    .sidebar{ position:sticky; top:0; top:env(safe-area-inset-top,0px); width:100%; height:auto; flex-direction:row; align-items:center; padding:12px 14px; gap:14px; z-index:40; overflow-x:auto; }
+    .logo{ flex-shrink:0; }
+    .logo .sub{ display:none; }
+    .tabs{ flex-direction:row; gap:6px; }
+    .tab{ white-space:nowrap; }
+    .sidebar-note, .sidebar-foot{ display:none; }
+  }
+
+  main{ flex:1; min-width:0; }
+  .module{ display:none; padding:36px 34px 60px; max-width:960px; }
+  .module.active{ display:block; }
+  @media (max-width:600px){ .module{ padding:22px 16px 48px; } }
+
+  .m-head{ margin-bottom:6px; }
+  .m-eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:0.74rem; color:var(--cyan); margin-bottom:9px; }
+  .m-head h1{ font-size:clamp(1.4rem,3.2vw,1.9rem); font-weight:700; margin-bottom:9px; }
+  .m-head p{ color:var(--ink-soft); max-width:64ch; font-size:0.94rem; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:26px; }
+  .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:22px; margin-top:26px; }
+  @media (max-width:820px){ .grid2, .grid3{ grid-template-columns:1fr; } }
+
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:10px; }
+  .card-head{ padding:15px 18px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  .card-head h3{ font-size:0.94rem; font-weight:600; }
+  .card-body{ padding:18px; }
+
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+  .field:last-child{ margin-bottom:0; }
+  .field label{ font-size:0.8rem; color:var(--ink-soft); display:flex; justify-content:space-between; gap:8px; }
+  .field label .val{ font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:0.8rem; }
+  input[type=range]{ width:100%; accent-color:var(--amber); height:4px; }
+  input[type=number], input[type=text], select{
+    width:100%; padding:8px 10px; font-family:'IBM Plex Sans',sans-serif; font-size:0.88rem;
+    background:var(--panel-2); color:var(--ink); border:1px solid var(--line); border-radius:6px;
+  }
+
+  .appl-row{ display:grid; grid-template-columns:20px 1fr 80px 26px; gap:10px; align-items:center; padding:9px 0; border-top:1px solid var(--line-soft); }
+  .appl-row:first-child{ border-top:none; }
+  .appl-row input[type=checkbox]{ width:15px; height:15px; accent-color:var(--amber); }
+  .appl-row .name{ font-size:0.86rem; }
+  .appl-row .name .w{ display:block; font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--ink-dim); }
+  .appl-row .hrs input{ width:100%; padding:5px 6px; font-size:0.78rem; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); border-radius:5px; font-family:'IBM Plex Mono',monospace; }
+  .appl-row.disabled .name, .appl-row.disabled .hrs{ opacity:0.35; }
+  .appl-del{ background:none; border:none; color:var(--red); cursor:pointer; font-size:0.95rem; opacity:0.7; }
+  .appl-del:hover{ opacity:1; }
+  .add-appl{ display:grid; grid-template-columns:1fr 70px 60px 34px; gap:8px; margin-top:12px; align-items:center; }
+  .add-appl input{ padding:7px 8px; font-size:0.78rem; }
+  .add-appl button{ background:var(--cyan-dim); color:var(--cyan); border:none; border-radius:6px; font-size:0.85rem; cursor:pointer; padding:7px 0; }
+  .add-appl button:hover{ filter:brightness(1.2); }
+
+  .out-row{ display:flex; justify-content:space-between; align-items:baseline; padding:10px 0; border-top:1px solid var(--line-soft); gap:10px; }
+  .out-row:first-child{ border-top:none; }
+  .out-row .k{ font-size:0.83rem; color:var(--ink-soft); }
+  .out-row .v{ font-family:'IBM Plex Mono',monospace; font-size:0.92rem; text-align:right; }
+  .out-row.hi{ padding-top:13px; margin-top:3px; border-top:1px solid var(--line); }
+  .out-row.hi .v{ color:var(--amber); font-weight:600; font-size:1.18rem; }
+  .out-row.hi .k{ color:var(--ink); font-weight:500; }
+
+  .chip{ font-family:'IBM Plex Mono',monospace; font-size:0.68rem; padding:4px 9px; border:1px solid var(--line); border-radius:20px; color:var(--ink-soft); }
+  .chip.gd{ border-color:var(--green); color:var(--green); }
+
+  svg.chartsvg{ width:100%; height:auto; display:block; margin-top:6px; }
+
+  .cert-scale{ display:flex; border-radius:8px; overflow:hidden; margin:20px 0 10px; height:44px; position:relative; }
+  .cert-seg{ flex:1; display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.92rem; color:#12181A; }
+  .cert-pointer{ position:absolute; top:-14px; transform:translateX(-50%); font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--ink); display:flex; flex-direction:column; align-items:center; gap:2px; transition:left .25s ease; }
+  .cert-pointer .tri{ width:0;height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:7px solid var(--ink); }
+
+  .cert-card{ margin-top:22px; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--panel-2); }
+  .cert-card-top{ padding:22px; display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap; }
+  .cert-badge{ width:76px; height:76px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-weight:800; font-size:2rem; color:#12181A; flex-shrink:0; }
+  .cert-info h3{ font-size:1rem; margin-bottom:4px; }
+  .cert-info p{ font-size:0.83rem; color:var(--ink-soft); }
+  .cert-card-bottom{ padding:14px 22px; border-top:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:0.73rem; color:var(--ink-dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  .note{ font-size:0.77rem; color:var(--ink-dim); margin-top:16px; line-height:1.6; }
+
+  .switch-hint{ display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; color:var(--cyan); background:var(--cyan-dim); padding:6px 12px; border-radius:20px; border:none; cursor:pointer; margin-top:16px; }
+  .switch-hint:hover{ filter:brightness(1.15); }
+
+  table.datatable{ width:100%; border-collapse:collapse; font-size:0.8rem; margin-top:6px; }
+  table.datatable th, table.datatable td{ padding:8px 9px; text-align:right; border-bottom:1px solid var(--line-soft); font-family:'IBM Plex Mono',monospace; }
+  table.datatable th:first-child, table.datatable td:first-child{ text-align:left; font-family:'IBM Plex Sans',sans-serif; }
+  table.datatable th{ color:var(--ink-soft); font-weight:500; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.02em; }
+  .tbl-wrap{ overflow-x:auto; margin-top:10px; }
+
+  .save-bar{ display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn2{ font-family:'Manrope',sans-serif; font-size:0.84rem; font-weight:600; padding:10px 18px; border-radius:7px; border:1px solid var(--line); background:var(--panel-2); color:var(--ink); cursor:pointer; }
+  .btn2:hover{ border-color:var(--amber); color:var(--amber); }
+  .btn2.primary{ background:var(--amber); color:#1A1200; border-color:var(--amber); }
+  .btn2.primary:hover{ filter:brightness(1.08); }
+
+  .scenario-row{ display:grid; grid-template-columns:1fr auto auto auto auto 30px; gap:14px; align-items:center; padding:11px 0; border-top:1px solid var(--line-soft); font-size:0.83rem; }
+  .scenario-row:first-child{ border-top:none; }
+  .scenario-row .sc-name{ font-weight:600; }
+  .scenario-row .sc-date{ font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--ink-dim); display:block; }
+  .scenario-row .sc-v{ font-family:'IBM Plex Mono',monospace; text-align:right; }
+  .scenario-del{ background:none; border:none; color:var(--red); cursor:pointer; font-size:1rem; opacity:0.7; }
+  .scenario-del:hover{ opacity:1; }
+  .empty-state{ color:var(--ink-dim); font-size:0.85rem; padding:20px 0; text-align:center; }
+
+  .obj-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-radius:7px; border:1px solid var(--line); cursor:pointer; font-size:0.84rem; }
+  .obj-row:hover{ border-color:var(--amber); }
+  .obj-row.active{ background:var(--panel-3); border-color:var(--amber); }
+  .obj-row .obj-type{ font-family:'IBM Plex Mono',monospace; font-size:0.68rem; color:var(--ink-dim); display:block; margin-top:2px; }
+  .obj-row .obj-del{ background:none; border:none; color:var(--red); opacity:0.6; cursor:pointer; font-size:0.95rem; }
+  .obj-row .obj-del:hover{ opacity:1; }
+
+  table.caltable{ width:100%; border-collapse:collapse; }
+  table.caltable th, table.caltable td{ padding:7px 8px; border-bottom:1px solid var(--line-soft); font-size:0.8rem; text-align:right; }
+  table.caltable th:first-child, table.caltable td:first-child{ text-align:left; font-family:'IBM Plex Sans',sans-serif; color:var(--ink-soft); }
+  table.caltable th{ color:var(--ink-soft); font-weight:500; font-size:0.68rem; text-transform:uppercase; }
+  table.caltable input{ width:92px; padding:5px 7px; font-size:0.78rem; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); border-radius:5px; font-family:'IBM Plex Mono',monospace; text-align:right; }
+  table.caltable tr.filled td{ background:rgba(63,166,107,0.06); }
+  table.caltable td.cal-cost{ font-family:'IBM Plex Mono',monospace; color:var(--amber); font-weight:600; }
+  #calendarBody{ overflow-x:auto; }
+  .grid2 > *, .grid3 > *{ min-width:0; }
+  .fc-bar{ display:inline-block; height:6px; background:var(--cyan); border-radius:3px; margin-right:8px; vertical-align:middle; }
+
+  /* ob'ekt paneli va "span 2" kartasi: telefonda bitta ustunga tushadi */
+  .grid2.grid-obj{ grid-template-columns:320px 1fr; }
+  .span2{ grid-column:span 2; }
+  @media (max-width:820px){ .grid2.grid-obj{ grid-template-columns:1fr; } .span2{ grid-column:auto; } }
+
+  /* qisqa nazariy ma'lumot bloki */
+  details.theory{ margin-top:16px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:8px; max-width:72ch; }
+  details.theory summary{ cursor:pointer; list-style:none; padding:11px 16px; font-family:'Manrope',sans-serif; font-weight:600; font-size:0.86rem; color:var(--ink); display:flex; align-items:center; gap:8px; }
+  details.theory summary::-webkit-details-marker{ display:none; }
+  details.theory summary::before{ content:'▸'; display:inline-block; color:var(--cyan); transition:transform .15s; }
+  details.theory[open] summary::before{ transform:rotate(90deg); }
+  .theory-body{ padding:0 16px 14px; font-size:0.85rem; color:var(--ink-soft); line-height:1.65; }
+  .theory-body p{ margin-bottom:8px; }
+  .theory-body ul{ margin:4px 0 4px 18px; }
+  .theory-body li{ margin-bottom:5px; }
+  .theory-body b{ color:var(--ink); font-weight:600; }
+  .theory-body code{ font-family:'IBM Plex Mono',monospace; color:var(--cyan); font-size:0.78rem; }
+  @media (prefers-reduced-motion: reduce){ details.theory summary::before{ transition:none; } }
+
+  #printReport{ display:none; }
+  @media print{
+    .sidebar, .topbar, .module{ display:none !important; }
+    #printReport{ display:block !important; background:#fff; color:#111; padding:30px; font-family:'IBM Plex Sans',sans-serif; }
+    #printReport h1{ font-family:'Manrope',sans-serif; font-size:1.4rem; margin-bottom:4px; }
+    #printReport .pr-sub{ font-size:0.8rem; color:#555; margin-bottom:20px; }
+    #printReport table{ width:100%; border-collapse:collapse; margin-bottom:22px; }
+    #printReport th, #printReport td{ text-align:left; padding:6px 8px; border-bottom:1px solid #ccc; font-size:0.85rem; }
+    #printReport h2{ font-size:1rem; margin:18px 0 8px; }
+  }
+
+  .formula-box{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:14px 16px; font-family:'IBM Plex Mono',monospace; font-size:0.82rem; color:var(--cyan);
+    line-height:1.7; margin:14px 0;
+  }
+  .formula-box .step{ color:var(--ink-soft); }
+  table.periodtable{ width:100%; border-collapse:collapse; margin-top:8px; }
+  table.periodtable th, table.periodtable td{ padding:9px 8px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:0.85rem; border-bottom:1px solid var(--line-soft); }
+  table.periodtable th:first-child, table.periodtable td:first-child{ text-align:left; font-family:'IBM Plex Sans',sans-serif; color:var(--ink-soft); }
+  table.periodtable th{ color:var(--ink-soft); font-weight:500; font-size:0.7rem; text-transform:uppercase; }
+  table.periodtable td.hi{ color:var(--amber); font-weight:600; }
+
+  .topbar{ display:flex; justify-content:flex-end; gap:10px; padding:14px 34px 0; }
+  @media (max-width:600px){ .topbar{ padding:12px 16px 0; } }
+
+  .field input[type=number]{ width:100%; background:var(--panel-3); border:1px solid var(--line); border-radius:6px; padding:8px 10px; color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:0.85rem; }
+  .field input[type=number]:focus{ outline:none; border-color:var(--amber); }
+  .kpi-row{ display:grid; grid-template-columns:1fr auto; gap:4px 12px; padding:11px 0; border-top:1px solid var(--line-soft); }
+  .kpi-row:first-child{ border-top:none; }
+  .kpi-row .k{ font-size:0.83rem; color:var(--ink-soft); }
+  .kpi-row .v{ font-family:'IBM Plex Mono',monospace; font-size:0.92rem; text-align:right; color:var(--ink); }
+  .kpi-row .bar{ grid-column:1 / -1; height:5px; background:var(--panel-3); border-radius:3px; overflow:hidden; }
+  .kpi-row .bar i{ display:block; height:100%; background:var(--cyan); border-radius:3px; transition:width .25s; }
+  .score-big{ display:flex; align-items:baseline; gap:10px; margin-bottom:6px; }
+  .score-big b{ font-family:'Manrope',sans-serif; font-size:2.6rem; color:var(--amber); line-height:1; }
+  .score-big span{ font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); font-size:0.85rem; }
+  .reco-item{ border:1px solid var(--line); border-left:4px solid var(--cyan); border-radius:8px; padding:13px 16px; margin-bottom:12px; background:var(--panel-2); }
+  .reco-item .rt{ display:flex; justify-content:space-between; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:4px; }
+  .reco-item h4{ font-family:'Manrope',sans-serif; font-size:0.92rem; color:var(--ink); }
+  .reco-item p{ font-size:0.84rem; color:var(--ink-soft); line-height:1.55; }
+  .reco-item .sv{ font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--green); margin-top:6px; }
+  .btn-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .btn-row .btn2{ padding:7px 12px; font-size:0.78rem; }
+  @media (prefers-reduced-motion: reduce){ .kpi-row .bar i{ transition:none; } }
+
+  .ai-bar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .ai-bar .btn2{ padding:7px 12px; font-size:0.78rem; }
+  .ai-auto{ font-size:0.8rem; color:var(--ink-soft); display:flex; align-items:center; gap:6px; cursor:pointer; }
+  .ai-status{ font-family:'IBM Plex Mono',monospace; font-size:0.74rem; color:var(--ink-dim); margin-bottom:12px; min-height:1.1em; }
+  .ai-status.busy::before{ content:''; display:inline-block; width:8px; height:8px; margin-right:7px; border-radius:50%; background:var(--amber); animation:aiPulse 1s ease-in-out infinite; }
+  @keyframes aiPulse{ 0%,100%{ opacity:.25; } 50%{ opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .ai-status.busy::before{ animation:none; } }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" stroke="var(--amber)" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span>AI EnergoNazorat Platform<span class="sub">korxona · zavod · uy · maktab · bino</span></span>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="t2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="8" width="16" height="12" rx="1"/><path d="M4 8l8-5 8 5"/></svg>
+        Issiqlik yo'qotilishi
+      </button>
+      <button class="tab" data-tab="t5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 17l6-6-4-4M12 19h8"/></svg>
+        Energiya sarfi va toifasi
+      </button>
+      <button class="tab" data-tab="t6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Davriy hisobot
+      </button>
+      <button class="tab" data-tab="t7">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+        Quyosh investitsiyasi
+      </button>
+      <button class="tab" data-tab="t8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        Samaradorlik KPI va tavsiyalar
+      </button>
+    </nav>
+    <div class="sidebar-note">Modul 2 — issiqlik yo'qotilishi. Modul 5 — elektr/issiqlik/gaz sarfi va toifasi. Modul 6 — ob'ektlar uchun oylik/yillik taqvim hisoboti. Modul 7 — quyosh panel investitsiyasining qaytish muddati. Modul 8 — samaradorlik ko'rsatkichlari va tavsiyalar.</div>
+    <div class="sidebar-foot">Energetika muhandisligi<br>Energiya tejamkorligi va energoaudit</div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <button class="btn2" id="themeBtn">☀ Yorug' tema</button>
+      <button class="btn2" id="printBtn">🖨 Hisobotni chop etish</button>
+    </div>
+
+    <!-- MODULE 2: building envelope heat loss (scientific) -->
+    <section class="module active" id="t2">
+      <div class="m-head">
+        <div class="m-eyebrow">MODUL 02 · ISSIQLIK BALANSI</div>
+        <h1>Bino qobig'i orqali issiqlik yo'qotilishi va energiya klassi</h1>
+        <p>Gradus-kun (degree-day) usuli asosida: transmissiya (devor/deraza/tom) va shamollatish orqali yo'qotilgan issiqlikdan yillik isitish energiyasi hisoblanadi, so'ngra A–G energiya klassi belgilanadi.</p>
+        <details class="theory" open>
+          <summary>Nazariy ma'lumot</summary>
+          <div class="theory-body">
+            <p><b>Issiqlik uzatish.</b> Bino qobig'i (devor, deraza, tom) orqali issiqlik issiq tomondan sovuq tomonga o'tadi: <code>Q = U × A × ΔT</code>. Bunda U — issiqlik uzatish koeffitsienti (Vt/m²·K), A — maydon, ΔT — ichki va tashqi harorat farqi.</p>
+            <ul>
+              <li><b>U-qiymat</b> qancha kichik bo'lsa, izolyatsiya shuncha yaxshi: <code>U = 1 / R</code>, <code>R = Σ d/λ</code> (qatlam qalinligi / issiqlik o'tkazuvchanligi).</li>
+              <li><b>Shamollatish yo'qotishi</b> havo almashinuvi bilan bog'liq: <code>H_v = 0,34 × n × V</code>. 0,34 — havo zichligi va solishtirma issiqlik sig'imining ko'paytmasi (Vt·soat/m³·K).</li>
+              <li><b>Gradus-kun (HDD)</b> — isitish mavsumi davomida harorat farqining kunlar bo'yicha yig'indisi. Yillik energiya: <code>Q = H × HDD × 24 / 1000</code>.</li>
+              <li><b>Energiya klassi</b> solishtirma sarf (kVt·soat/m²·yil) bo'yicha A (eng tejamkor) dan G gacha shartli baholanadi.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid3">
+        <div class="card">
+          <div class="card-head"><h3>Geometriya</h3></div>
+          <div class="card-body">
+            <div class="field"><label>Foydali maydon <span class="val" id="areaVal">400 m²</span></label><input type="range" id="bldArea" min="50" max="2000" value="400" step="10"></div>
+            <div class="field"><label>Bino balandligi <span class="val" id="heightVal">3.0 m</span></label><input type="range" id="bldHeight" min="2.4" max="6" value="3" step="0.1"></div>
+            <div class="field"><label>Devor maydoni <span class="val" id="wallAreaVal">340 m²</span></label><input type="range" id="wallArea" min="40" max="1200" value="340" step="10"></div>
+            <div class="field"><label>Deraza maydoni <span class="val" id="winAreaVal">60 m²</span></label><input type="range" id="winArea" min="0" max="400" value="60" step="5"></div>
+            <div class="field"><label>Tom maydoni <span class="val" id="roofAreaVal">400 m²</span></label><input type="range" id="roofArea" min="20" max="2000" value="400" step="10"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Issiqlik uzatish (U-qiymat)</h3></div>
+          <div class="card-body">
+            <div class="field"><label>Devor izolyatsiyasi</label>
+              <select id="wallQ"><option value="1.2">Izolyatsiyasiz (U≈1.2)</option><option value="0.6" selected>O'rtacha (U≈0.6)</option><option value="0.3">Yaxshi (U≈0.3)</option></select>
+            </div>
+            <div class="field"><label>Deraza turi</label>
+              <select id="winQ"><option value="5.0">Bir qavatli (U≈5.0)</option><option value="2.7" selected>Ikki qavatli oddiy (U≈2.7)</option><option value="1.4">Energiya tejamkor (U≈1.4)</option></select>
+            </div>
+            <div class="field"><label>Tom izolyatsiyasi</label>
+              <select id="roofQ"><option value="1.0">Izolyatsiyasiz (U≈1.0)</option><option value="0.5" selected>O'rtacha (U≈0.5)</option><option value="0.25">Yaxshi (U≈0.25)</option></select>
+            </div>
+            <div class="field"><label>Shamollatish karatligi (n) <span class="val" id="nVal">0.6 1/soat</span></label><input type="range" id="ventN" min="0.2" max="2" value="0.6" step="0.1"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Iqlim va harorat</h3></div>
+          <div class="card-body">
+            <div class="field"><label>Ichki harorat <span class="val" id="tinVal">20 °C</span></label><input type="range" id="tIn" min="16" max="24" value="20" step="1"></div>
+            <div class="field"><label>O'rtacha tashqi harorat (isitish mavsumida) <span class="val" id="toutVal">2 °C</span></label><input type="range" id="tOut" min="-15" max="12" value="2" step="1"></div>
+            <div class="field"><label>Isitish mavsumi uzunligi <span class="val" id="daysVal">130 kun</span></label><input type="range" id="heatDays" min="60" max="200" value="130" step="5"></div>
+            <div class="out-row"><span class="k">Gradus-kun (HDD)</span><span class="v" id="hddOut">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:22px;">
+        <div class="card">
+          <div class="card-head"><h3>Issiqlik yo'qotilishi hisob-kitobi</h3></div>
+          <div class="card-body">
+            <div class="out-row"><span class="k">Transmissiya koeffitsienti H_t</span><span class="v" id="htOut">—</span></div>
+            <div class="out-row"><span class="k">Shamollatish koeffitsienti H_v</span><span class="v" id="hvOut">—</span></div>
+            <div class="out-row hi"><span class="k">Umumiy issiqlik yo'qotish quvvati</span><span class="v" id="hTotalOut">—</span></div>
+            <div class="out-row hi"><span class="k">Yillik isitish energiyasi</span><span class="v" id="qAnnualOut">—</span></div>
+            <div class="out-row"><span class="k">Solishtirma sarf</span><span class="v" id="specVal">—</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Energiya samaradorligi sertifikati</h3></div>
+          <div class="card-body">
+            <div class="cert-scale" id="scaleBox"></div>
+            <div id="certCardHolder"></div>
+            <div id="recoBox" style="margin-top:16px;padding:16px 18px;background:var(--panel-3);border:1px solid var(--line);border-radius:8px;font-size:0.84rem;color:var(--ink-soft);line-height:1.55;"></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Formula: H = U_devor·A_devor + U_deraza·A_deraza + U_tom·A_tom (transmissiya) + 0.34·n·V (shamollatish, V = maydon×balandlik). Yillik energiya Q = H × HDD × 24 / 1000 (kVt·soat), bu yerda HDD = (T_ichki − T_tashqi) × mavsum kunlari. Quyosh va ichki issiqlik tushumlari hisobga olinmagan (soddalashtirilgan, konservativ baho).</p>
+    </section>
+
+    <!-- MODULE 5: consumption formulas -->
+    <section class="module" id="t5">
+      <div class="m-head">
+        <div class="m-eyebrow">MODUL 05 · SARF VA TOIFA</div>
+        <h1>Energiya sarfi va toifasi: elektr, issiqlik, gaz va sovutish</h1>
+        <p>Har uch resurs uchun ham hisoblash mantig'i bir xil: avval kunlik sarf topiladi, so'ng davr koeffitsientiga ko'paytiriladi. Qiymatlarni o'zgartiring — barcha davrlar avtomatik qayta hisoblanadi.</p>
+        <details class="theory" open>
+          <summary>Nazariy ma'lumot</summary>
+          <div class="theory-body">
+            <p><b>Asosiy qoida:</b> energiya = quvvat × vaqt. 1 kVt quvvatli asbob 1 soat ishlasa, 1 kVt·soat sarflaydi.</p>
+            <ul>
+              <li><b>Elektr:</b> <code>E = P × t / 1000</code> (P — Vt, t — soat). Asboblar ko'p bo'lsa, faol asboblar yig'indisi olinadi.</li>
+              <li><b>Issiqlik:</b> kVt·soat yoki Gkal bilan o'lchanadi (1 Gkal ≈ 1163 kVt·soat). Yillik sarf faqat isitish mavsumi kunlari uchun hisoblanadi.</li>
+              <li><b>Gaz:</b> hajmda (m³) o'lchanadi. Tabiiy gazning past kalorik qiymati taxminan 9,3 kVt·soat/m³ (≈ 8000 kkal/m³) — shu orqali gaz boshqa energiya turlari bilan bir xil birlikda (kVt·soat) taqqoslanadi.</li>
+              <li><b>Sovutish (yozgi issiqlik tushumi):</b> binoga tashqaridan va ichkaridan kiradigan issiqlik yig'indisi — devor/tom/deraza orqali o'tkazish, deraza orqali quyosh nuri, odamlar va jihozlar, shamollatish — konditsionerning hisobiy yukini beradi. <code>COP</code> = sovutish quvvati / sarflangan elektr quvvati; maishiy split-tizimlarda odatda 3–4. Konditsioner to'liq quvvatda doim ishlamaydi, shuning uchun o'rtacha yuklama koeffitsienti qo'llanadi.</li>
+              <li><b>Davrlar:</b> kunlik sarf × 7 = haftalik, × 30 = oylik, × 365 = yillik. Xarajat = sarf × tarif.</li>
+              <li><b>Toifa (A–G):</b> oylik jami energiya kVt·soat ekvivalentida shartli chegaralar bo'yicha baholanadi. Bu o'quv maqsadidagi baho, rasmiy yorliq emas.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid3">
+        <!-- ELECTRICITY -->
+        <div class="card">
+          <div class="card-head"><h3>⚡ Elektr asboblari</h3><span class="chip" id="fe_count">0 ta faol</span></div>
+          <div class="card-body">
+            <div id="fe_applianceList"></div>
+            <div class="add-appl">
+              <input type="text" id="fe_newName" placeholder="Asbob nomi">
+              <input type="number" id="fe_newVal" placeholder="Vt" min="1">
+              <input type="number" id="fe_newH" placeholder="soat" min="0" max="24" step="0.5">
+              <button id="fe_addBtn">+</button>
+            </div>
+            <div class="field" style="margin-top:14px;"><label>1 kVt·soat narxi <span class="val" id="fe_priceVal">700 so'm</span></label><input type="range" id="fe_price" min="200" max="1500" value="700" step="10"></div>
+            <div class="formula-box">
+              E<span class="step">(kun)</span> = Σ (P<span class="step">ᵢ</span> × t<span class="step">ᵢ</span>) / 1000 — faol asboblar<br>
+              E<span class="step">(hafta)</span> = E(kun) × 7 &nbsp;·&nbsp; E<span class="step">(oy)</span> = E(kun) × 30 &nbsp;·&nbsp; E<span class="step">(yil)</span> = E(kun) × 365
+            </div>
+            <table class="periodtable" id="fe_table"></table>
+          </div>
+        </div>
+
+        <!-- HEAT -->
+        <div class="card">
+          <div class="card-head"><h3>🔥 Issiqlik asboblari</h3><span class="chip" id="fh_count">0 ta faol</span></div>
+          <div class="card-body">
+            <div id="fh_applianceList"></div>
+            <div class="add-appl">
+              <input type="text" id="fh_newName" placeholder="Asbob nomi">
+              <input type="number" id="fh_newVal" placeholder="kVt" min="0.1" step="0.1">
+              <input type="number" id="fh_newH" placeholder="soat" min="0" max="24" step="0.5">
+              <button id="fh_addBtn">+</button>
+            </div>
+            <div class="field" style="margin-top:14px;"><label>Isitish mavsumi uzunligi <span class="val" id="fh_daysVal">130 kun/yil</span></label><input type="range" id="fh_days" min="30" max="365" value="130" step="5"></div>
+            <div class="field"><label>1 kVt·soat issiqlik narxi <span class="val" id="fh_priceVal">300 so'm</span></label><input type="range" id="fh_price" min="50" max="1000" value="300" step="10"></div>
+            <div class="formula-box">
+              W<span class="step">(kun)</span> = Σ (Q<span class="step">ᵢ</span> × t<span class="step">ᵢ</span>) — faol asboblar<br>
+              W<span class="step">(hafta/oy)</span> = W(kun) × 7 / × 30 &nbsp;·&nbsp; W<span class="step">(yil)</span> = W(kun) × mavsum kunlari
+            </div>
+            <table class="periodtable" id="fh_table"></table>
+            <p class="note" style="margin-top:10px;">Yillik davr bu yerda 365 emas — isitish mavsumi uzunligi bo'yicha hisoblangan, chunki isitish faqat sovuq oylarda ishlaydi.</p>
+          </div>
+        </div>
+
+        <!-- GAS -->
+        <div class="card">
+          <div class="card-head"><h3>🔵 Gaz asboblari</h3><span class="chip" id="fg_count">0 ta faol</span></div>
+          <div class="card-body">
+            <div id="fg_applianceList"></div>
+            <div class="add-appl">
+              <input type="text" id="fg_newName" placeholder="Asbob nomi">
+              <input type="number" id="fg_newVal" placeholder="m³/soat" min="0.05" step="0.05">
+              <input type="number" id="fg_newH" placeholder="soat" min="0" max="24" step="0.5">
+              <button id="fg_addBtn">+</button>
+            </div>
+            <div class="field" style="margin-top:14px;"><label>1 m³ gaz narxi <span class="val" id="fg_priceVal">380 so'm</span></label><input type="range" id="fg_price" min="100" max="1500" value="380" step="10"></div>
+            <div class="formula-box">
+              V<span class="step">(kun, m³)</span> = Σ (Sarf<span class="step">ᵢ</span> × t<span class="step">ᵢ</span>) — faol asboblar<br>
+              V<span class="step">(hafta/oy/yil)</span> = V(kun) × davr koeffitsienti (7 / 30 / 365)
+            </div>
+            <table class="periodtable" id="fg_table"></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOVUTISH: yozgi issiqlik tushumi -->
+      <div class="card" style="margin-top:22px;">
+        <div class="card-head"><h3>❄ Sovutish (konditsioner) — yozgi issiqlik tushumi</h3><span class="chip" id="fc_chip">—</span></div>
+        <div class="card-body">
+          <p style="font-size:0.86rem;color:var(--ink-soft);margin-bottom:6px;">Yozda bino ichiga kiradigan issiqlik (devor, tom, deraza, quyosh nuri, odamlar, jihozlar, shamollatish) yig'ilib, konditsioner quvvati va mavsumiy elektr sarfi topiladi. Bino o'lchamlari va U-qiymatlar Modul 2 dan olinadi.</p>
+          <button class="switch-hint" data-goto="t2" style="margin-top:0;">Bino ma'lumotlarini Modul 2 da o'zgartirish →</button>
+          <p id="fc_srcInfo" style="font-size:0.78rem;color:var(--ink-dim);margin:10px 0 0;"></p>
+
+          <div class="grid2" style="margin-top:18px;">
+            <div>
+              <div class="field"><label>Ichki harorat (sovutish) <span class="val" id="fc_tInVal">24 °C</span></label><input type="range" id="fc_tIn" min="22" max="28" value="24" step="1"></div>
+              <div class="field"><label>Tashqi hisobiy harorat <span class="val" id="fc_tOutVal">35 °C</span></label><input type="range" id="fc_tOut" min="28" max="45" value="35" step="1"></div>
+              <div class="field"><label>Quyosh ta'sirida devor/tom qo'shimcha isishi, ΔT_q <span class="val" id="fc_dTqVal">5 K</span></label><input type="range" id="fc_dTq" min="0" max="15" value="5" step="1"></div>
+              <div class="field"><label>Derazaga tushadigan quyosh nurlanishi, I <span class="val" id="fc_irrVal">400 Vt/m²</span></label><input type="range" id="fc_irr" min="100" max="800" value="400" step="25"></div>
+              <div class="field"><label>Deraza quyosh himoyasi (g)</label>
+                <select id="fc_shade">
+                  <option value="0.7" selected>Oddiy shisha (g ≈ 0,7)</option>
+                  <option value="0.5">Reflektiv plyonka (g ≈ 0,5)</option>
+                  <option value="0.25">Tashqi jalyuzi/soyabon (g ≈ 0,25)</option>
+                </select>
+              </div>
+              <div class="field"><label>Odamlar soni <span class="val" id="fc_peopleVal">20 kishi</span></label><input type="range" id="fc_people" min="0" max="500" value="20" step="1"></div>
+              <div class="field"><label>Yoritish va jihozlar issiqligi <span class="val" id="fc_qintVal">15 Vt/m²</span></label><input type="range" id="fc_qint" min="0" max="50" value="15" step="1"></div>
+              <div class="field"><label>Konditsioner COP (samaradorlik) <span class="val" id="fc_copVal">3.2</span></label><input type="range" id="fc_cop" min="2" max="5" value="3.2" step="0.1"></div>
+              <div class="field"><label>O'rtacha yuklama koeffitsienti <span class="val" id="fc_lfVal">0.60</span></label><input type="range" id="fc_lf" min="0.3" max="1" value="0.6" step="0.05"></div>
+              <div class="field"><label>Kunlik ishlash vaqti <span class="val" id="fc_hoursVal">8 soat</span></label><input type="range" id="fc_hours" min="1" max="24" value="8" step="1"></div>
+              <div class="field"><label>Sovutish mavsumi uzunligi <span class="val" id="fc_daysVal">100 kun/yil</span></label><input type="range" id="fc_days" min="30" max="200" value="100" step="5"></div>
+            </div>
+            <div>
+              <div class="out-row hi"><span class="k">Hisobiy sovutish yuki, Q<span style="font-size:0.7em">c</span></span><span class="v" id="fc_qc">—</span></div>
+              <div class="out-row"><span class="k">Tavsiya etiladigan konditsioner quvvati (×1,15 zaxira)</span><span class="v" id="fc_design">—</span></div>
+              <div class="out-row"><span class="k">Hisobiy elektr quvvati (Q<span style="font-size:0.7em">c</span> / COP)</span><span class="v" id="fc_pel">—</span></div>
+              <table class="periodtable" id="fc_contrib" style="margin-top:12px;"></table>
+              <p style="font-size:0.8rem;color:var(--ink-soft);margin:16px 0 0;">Mavsumiy elektr sarfi va xarajat (elektr narxi yuqoridagi Elektr kartasidan olinadi):</p>
+              <table class="periodtable" id="fc_table"></table>
+            </div>
+          </div>
+
+          <div class="formula-box">
+            Q<span class="step">c</span> = Q<span class="step">devor</span> + Q<span class="step">tom</span> + Q<span class="step">deraza</span> + Q<span class="step">quyosh</span> + Q<span class="step">ichki</span> + Q<span class="step">shamollatish</span><br>
+            Q<span class="step">devor, tom</span> = U × A × (T<span class="step">tashqi</span> − T<span class="step">ichki</span> + ΔT<span class="step">q</span>)<br>
+            Q<span class="step">deraza</span> = U × A × (T<span class="step">tashqi</span> − T<span class="step">ichki</span>) &nbsp;·&nbsp; Q<span class="step">quyosh</span> = A<span class="step">deraza</span> × I × g<br>
+            Q<span class="step">ichki</span> = N × 100 Vt + S × q<span class="step">ichki</span> &nbsp;·&nbsp; Q<span class="step">shamollatish</span> = 0,34 × n × V × (T<span class="step">tashqi</span> − T<span class="step">ichki</span>)<br>
+            E<span class="step">(kun)</span> = Q<span class="step">c</span> × k<span class="step">yuk</span> × t / COP / 1000 &nbsp;·&nbsp; E<span class="step">(mavsum)</span> = E(kun) × mavsum kunlari
+          </div>
+          <p class="note" style="margin-top:12px;">Soddalashtirilgan model: namlik (yashirin issiqlik), bino issiqlik inersiyasi va yo'nalishlar bo'yicha quyosh farqi hisobga olinmagan. Elektr asboblari ro'yxatidagi konditsioner bilan ikki marta sanalmasligi uchun sovutish yuqoridagi umumiy A–G toifaga qo'shilmaydi.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px;">
+        <div class="card-head"><h3>Umumiy energiya sarfi toifasi</h3><span class="chip" id="totKwhChip">—</span></div>
+        <div class="card-body">
+          <p style="font-size:0.86rem;color:var(--ink-soft);margin-bottom:6px;">Yuqoridagi uchala hisoblagichning oylik natijasi (elektr + issiqlik + gaz, hammasi kVt·soat ekvivalentiga o'tkazilgan) yig'ilib, uy xo'jaligi uchun shartli A–G toifasiga solishtiriladi.</p>
+          <div class="cert-scale" id="scaleBoxTot"></div>
+          <div id="certCardHolderTot"></div>
+          <div class="tbl-wrap">
+            <table class="periodtable" id="totBreakdown"></table>
+          </div>
+        </div>
+      </div>
+
+      <p class="note">Uchala hisoblagich ham bitta umumiy mantiqqa asoslanadi: har bir asbobning quvvati (yoki gaz uchun soatlik sarfi) ishlash vaqtiga ko'paytiriladi va faol asboblar bo'yicha yig'indi olinadi — bu kunlik ko'rsatkich. So'ngra kunlik qiymat davr koeffitsientiga (7 / 30 / 365 yoki mavsum kuni) ko'paytirilib, haftalik/oylik/yillik sarf va xarajat topiladi. Toifalash (A–G) shartli, o'quv maqsadida tuzilgan chegaralarga asoslangan — rasmiy energiya yorlig'i emas.</p>
+    </section>
+
+    <!-- MODULE 6: periodic calendar report for objects -->
+    <section class="module" id="t6">
+      <div class="m-head">
+        <div class="m-eyebrow">MODUL 06 · DAVRIY HISOBOT</div>
+        <h1>Korxona, zavod, uy, maktab va boshqa ob'ektlar uchun oylik/yillik hisobot</h1>
+        <p>Har bir ob'ekt uchun alohida taqvim yuritiladi: oy sayin hisoblagich ko'rsatkichlarini kiritasiz, tizim yillik jadval, grafik va xarajatni avtomatik hisoblaydi. Ma'lumot shu qurilmangizda, brauzeringizda saqlanadi.</p>
+        <details class="theory" open>
+          <summary>Nazariy ma'lumot</summary>
+          <div class="theory-body">
+            <p><b>Energiya monitoringi</b> — hisoblagich ko'rsatkichlarini muntazam (oylik, yillik) yuritish. Bu energiya menejmentining asosi: ISO 50001 standartidagi "rejala – bajar – tekshir – yaxshila" sikli o'lchangan ma'lumotga tayanadi.</p>
+            <ul>
+              <li><b>Tendensiya:</b> oylar bo'yicha taqqoslash mavsumiy o'zgarishni (qishda isitish, yozda sovutish) va g'ayritabiiy oshishni ko'rsatadi.</li>
+              <li><b>Bazaviy chiziq:</b> o'tgan yil sarfi tejamkorlik chorasidan keyingi natijani baholash uchun solishtirish asosi bo'ladi.</li>
+              <li><b>Xarajat:</b> har oy uchun <code>X = E·p_e + H·p_h + G·p_g</code>; yillik xarajat — oylar yig'indisi.</li>
+              <li><b>Ob'ekt turi:</b> turar-joy, maktab, korxona va zavodning sarf darajasi turlicha, shuning uchun ularni alohida yuritib, faqat o'xshashlarini solishtirish to'g'ri.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid2 grid-obj" style="margin-top:24px;">
+        <div class="card">
+          <div class="card-head"><h3>Ob'ektlar</h3><span class="chip" id="objCount">0 ta</span></div>
+          <div class="card-body">
+            <div id="objList" style="display:flex;flex-direction:column;gap:8px;"></div>
+            <div class="field" style="margin-top:16px;"><label>Ob'ekt nomi</label><input type="text" id="newObjName" placeholder="masalan: 14-maktab"></div>
+            <div class="field"><label>Ob'ekt turi</label>
+              <select id="newObjType">
+                <option value="Turar-joy">Turar-joy (uy/kvartira)</option>
+                <option value="Maktab">Maktab / bog'cha</option>
+                <option value="Korxona">Korxona / ofis</option>
+                <option value="Zavod">Zavod / sanoat</option>
+                <option value="Bino">Bino / inshoot (umumiy)</option>
+              </select>
+            </div>
+            <button class="btn2 primary" id="addObjBtn" style="width:100%;">+ Yangi ob'ekt qo'shish</button>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+              <button class="btn2" id="expObjBtn" style="flex:1;">Yuklab olish (fayl)</button>
+              <button class="btn2" id="impObjBtn" style="flex:1;">Faylni yuklash</button>
+            </div>
+            <input type="file" id="impObjFile" accept=".json,application/json" style="display:none">
+            <p class="note" style="margin-top:8px;">Ob'ektlar va oylik kiritmalar shu brauzerda saqlanadi. Boshqa joyga o'tkazish uchun faylga saqlang va u yerda yuklang.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3 id="activeObjTitle">Ob'ekt tanlanmagan</h3>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button class="btn2" id="yearPrev">←</button>
+              <span class="chip mono" id="yearLabel">2026</span>
+              <button class="btn2" id="yearNext">→</button>
+            </div>
+          </div>
+          <div class="card-body" id="calendarBody">
+            <div class="empty-state">Chapda ob'ekt qo'shing yoki tanlang.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid3" style="margin-top:22px;">
+        <div class="card">
+          <div class="card-head"><h3>Narxlar</h3></div>
+          <div class="card-body">
+            <div class="field"><label>1 kVt·soat elektr narxi <span class="val" id="cal_priceEVal">700 so'm</span></label><input type="range" id="cal_priceE" min="200" max="1500" value="700" step="10"></div>
+            <div class="field"><label>1 kVt·soat issiqlik narxi <span class="val" id="cal_priceHVal">300 so'm</span></label><input type="range" id="cal_priceH" min="50" max="1000" value="300" step="10"></div>
+            <div class="field"><label>1 m³ gaz narxi <span class="val" id="cal_priceGVal">380 so'm</span></label><input type="range" id="cal_priceG" min="100" max="1500" value="380" step="10"></div>
+          </div>
+        </div>
+        <div class="card span2">
+          <div class="card-head"><h3>Yillik tendensiya (jami oylik xarajat)</h3>
+            <button class="btn2" id="exportCsvBtn">⬇ CSV yuklab olish</button>
+          </div>
+          <div class="card-body">
+            <svg class="chartsvg" id="calChart" viewBox="0 0 640 190"></svg>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:22px;">
+        <div class="card-head"><h3>Hisob-kitob formulasi</h3><span class="chip" id="calFilledChip">0 / 12 oy</span></div>
+        <div class="card-body">
+          <div class="formula-box" style="margin-top:0;">
+            X<span class="step">(oy)</span> = E × p<span class="step">e</span> + H × p<span class="step">h</span> + G × p<span class="step">g</span><br>
+            X<span class="step">(yil)</span> = Σ X<span class="step">(oy)</span> &nbsp;·&nbsp; o'rtacha oylik = X(yil) / to'ldirilgan oylar<br>
+            Prognoz<span class="step">(yil)</span> = o'rtacha oylik × 12<br>
+            <span class="step">E — elektr (kVt·soat) · H — issiqlik (kVt·soat) · G — gaz (m³) · p — tarif (so'm)</span>
+          </div>
+          <div id="calFormulaOut"><div class="empty-state">Avval ob'ekt qo'shing yoki tanlang.</div></div>
+        </div>
+      </div>
+
+      <p class="note">Ob'ekt turi hisobotni tasniflash uchun ishlatiladi (korxona, zavod, turar-joy, maktab, bino). Har bir oy uchun elektr (kVt·soat), issiqlik (kVt·soat) va gaz (m³) real hisoblagich ko'rsatkichlarini kiriting — tizim narxlar asosida xarajatni va yillik yig'indini avtomatik chiqaradi.</p>
+    </section>
+
+    <!-- MODULE 7: solar investment payback -->
+    <section class="module" id="t7">
+      <div class="m-head">
+        <div class="m-eyebrow">MODUL 07 · INVESTITSIYA</div>
+        <h1>Quyosh panel tizimi — qaytish muddati</h1>
+        <p>Korxona, zavod, maktab yoki uy uchun quyosh panel tizimi o'ziga qancha vaqtda "qaytishini" hisoblang.</p>
+        <details class="theory" open>
+          <summary>Nazariy ma'lumot — quyosh investitsiyasi qanday hisoblanadi</summary>
+          <div class="theory-body">
+            <p><b>Asosiy g'oya.</b> Quyosh panelga bir marta katta pul sarflanadi. Keyin panel yillar davomida elektr ishlab chiqaradi va tarmoqdan kamroq elektr sotib olinadi. Tejalgan pul yig'ilib, dastlabki xarajatni qoplagan payt — <b>qaytish muddati</b>.</p>
+            <ul>
+              <li><b>1-qadam. Panel qancha elektr beradi:</b> <code>E = P × t_q × 365 × η</code>. P — tizim quvvati (kVt), t_q — kunlik "to'liq quyosh soati" (hududga qarab 3–7 soat), η — tizim samaradorligi (invertor, kabel, chang va qizish yo'qotishlari; odatda 75–90%).</li>
+              <li><b>2-qadam. Investitsiya (CAPEX):</b> panel + invertor + konstruksiya + o'rnatish narxi. Taxminan <code>quvvat × 1 kVt narxi</code>.</li>
+              <li><b>3-qadam. Birinchi yil tejami:</b> <code>E × tarif − yillik xizmat</code>. Ya'ni ishlab chiqarilgan kVt·soat tarif bo'yicha pulga aylantiriladi, tozalash va ta'mir xarajati ayriladi.</li>
+              <li><b>4-qadam. Haqiqiy hayotdagi tuzatishlar</b> (oddiy "narx ÷ tejam" hisobi noaniq, shuning uchun qo'shiladi):
+                <ul>
+                  <li><b>Degradatsiya:</b> panel har yili ~0,5–0,7% kuchsizlanadi, ya'ni y-yilda <code>E_y = E₁ × (1 − d)^(y−1)</code>.</li>
+                  <li><b>Tarif o'sishi:</b> elektr qimmatlashgani sari tejam ham oshadi: <code>narx_y = narx₁ × (1 + s)^(y−1)</code>.</li>
+                  <li><b>Xizmat xarajati:</b> har yili tejamdan ayriladi.</li>
+                </ul>
+              </li>
+              <li><b>5-qadam. Qaytish muddati:</b> har yilgi sof tejam yig'iladi (<code>Σ tejam_y</code>, 15 yil). Yig'indi tizim narxidan oshgan yil — qaytish yili. Grafikda chiziq nol chizig'ini kesib o'tgan joy shu.</li>
+            </ul>
+            <p><b>Misol (standart qiymatlar).</b> 3 kVt × 5 soat × 365 × 0,85 ≈ <b>4 654 kVt·soat/yil</b>. Tarif 700 so'm bo'lsa, 4 654 × 700 ≈ 3,26 mln so'm; xizmat 0,3 mln ayrilsa ≈ <b>2,96 mln so'm/yil</b>. Tizim 18 mln so'm bo'lsa, oddiy hisobda 18 ÷ 2,96 ≈ 6,1 yil. Tarif yiliga 8% oshishi hisobga olinsa, muddat qisqaradi.</p>
+            <p><b>Natijani qanday baholash:</b></p>
+            <ul>
+              <li><b>6–7 yildan kam:</b> yaxshi investitsiya (panel ~25 yil ishlaydi).</li>
+              <li><b>8–10 yil:</b> qabul qilsa bo'ladi; arzonroq narx yoki yuqori tarif foydali.</li>
+              <li><b>12 yildan ko'p:</b> iqtisodiy jihatdan zaif.</li>
+              <li><b>15 yillik jami tejam − tizim narxi &gt; 0</b> bo'lsa, loyiha foyda keltiradi.</li>
+            </ul>
+            <p><b>Cheklovlar.</b> Hisob taxminiy: bulutlilik, soyalanish, panel yo'nalishi va qiyaligi, tarmoqqa sotish shartlari natijani o'zgartiradi. Haqiqiy loyihada bular alohida o'lchanadi.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid3" style="margin-top:24px;">
+        <div class="card">
+          <div class="card-head"><h3>Tizim</h3></div>
+          <div class="card-body">
+            <div class="field"><label>Tizim narxi <span class="val" id="sol_costVal">18 000 000 so'm</span></label><input type="range" id="sol_cost" min="3000000" max="200000000" value="18000000" step="500000"></div>
+            <div class="field"><label>Tizim quvvati <span class="val" id="sol_pwrVal">3 kVt</span></label><input type="range" id="sol_pwr" min="1" max="100" value="3" step="0.5"></div>
+            <div class="field"><label>O'rtacha quyosh soati/kun <span class="val" id="sol_sunVal">5.0 soat</span></label><input type="range" id="sol_sun" min="3" max="7" value="5" step="0.2"></div>
+            <div class="field"><label>Tizim samaradorligi <span class="val" id="sol_effVal">85%</span></label><input type="range" id="sol_eff" min="60" max="95" value="85" step="1"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Iqtisodiy parametrlar</h3></div>
+          <div class="card-body">
+            <div class="field"><label>1 kVt·soat joriy narx <span class="val" id="sol_priceVal">700 so'm</span></label><input type="range" id="sol_price" min="200" max="1500" value="700" step="10"></div>
+            <div class="field"><label>Elektr narxi yillik o'sishi <span class="val" id="sol_escVal">8%</span></label><input type="range" id="sol_esc" min="0" max="20" value="8" step="1"></div>
+            <div class="field"><label>Panel degradatsiyasi (yillik) <span class="val" id="sol_degVal">0.6%</span></label><input type="range" id="sol_deg" min="0" max="2" value="0.6" step="0.1"></div>
+            <div class="field"><label>Yillik texnik xizmat <span class="val" id="sol_maintVal">300 000 so'm</span></label><input type="range" id="sol_maint" min="0" max="10000000" value="300000" step="100000"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Natija</h3></div>
+          <div class="card-body">
+            <div class="out-row"><span class="k">1-yil ishlab chiqarish</span><span class="v" id="sol_prodOut">—</span></div>
+            <div class="out-row"><span class="k">1-yil tejam</span><span class="v" id="sol_save1Out">—</span></div>
+            <div class="out-row hi"><span class="k">Qaytish muddati</span><span class="v" id="sol_paybackOut">—</span></div>
+            <div class="out-row hi"><span class="k">15 yillik jami tejam</span><span class="v" id="sol_total15Out">—</span></div>
+            <div class="formula-box">
+              E<span class="step">(1-yil)</span> = P × t<span class="step">q</span> × 365 × η<br>
+              Tejam<span class="step">(y)</span> = E<span class="step">(1)</span>·(1−d)<span class="step">^(y−1)</span> × p·(1+g)<span class="step">^(y−1)</span> − xizmat<br>
+              Qaytish = yig'ilgan tejam ≥ tizim narxi bo'lgan yil
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px;">
+        <div class="card-head"><h3>15 yillik jamg'arma grafigi</h3></div>
+        <div class="card-body">
+          <svg class="chartsvg" id="solChart" viewBox="0 0 640 190"></svg>
+        </div>
+      </div>
+      <p class="note">Sariq chiziq — yillar davomida jamlangan tejam (panel degradatsiyasi va elektr narxi o'sishi hisobga olingan). Ko'k chiziq — tizim narxi. Ikki chiziq kesishgan nuqta — taxminiy qaytish muddati.</p>
+    </section>
+
+    <!-- MODULE 8: efficiency KPIs + recommendations -->
+    <section class="module" id="t8">
+      <div class="m-head">
+        <div class="m-eyebrow">MODUL 08 · SAMARADORLIK</div>
+        <h1>Energiya samaradorligi ko'rsatkichlari va tavsiyalar</h1>
+        <p>Yo'qotishlarning kamayishi, energiya sig'imi, birlamchi va ikkilamchi resurslar hamda qayta tiklanuvchi energiya ulushi — bitta indeksga jamlanadi, sun'iy intellekt esa sonlar o'zgarishi bilan avtomatik tavsiyalar beradi.</p>
+        <details class="theory" open>
+          <summary>Nazariy ma'lumot — samaradorlik ko'rsatkichlari</summary>
+          <div class="theory-body">
+            <ul>
+              <li><b>Energiya yo'qotishlarining kamayishi:</b> <code>(L₀ − L₁) / L₀ × 100%</code>. L₀ — bazaviy yildagi, L₁ — joriy yildagi yo'qotishlar (bino qobig'i, tarmoq, uskuna). Yo'qotishlar ulushi: <code>L₁ / jami sarf</code>.</li>
+              <li><b>Energiya sig'imi (intensivlik):</b> <code>EI = jami energiya / maydon</code> (kVt·soat/m²·yil), shuningdek bitta odamga to'g'ri keladigan sarf. Kamayishi: <code>(EI₀ − EI₁) / EI₀</code>. Ishlab chiqarishda bu mahsulot birligiga yoki yalpi mahsulot (YaIM) birligiga energiya sarfi bo'ladi.</li>
+              <li><b>Birlamchi energiya</b> — tabiiy resursda (gaz, ko'mir, suv, quyosh) mavjud energiya. <b>Ikkilamchi (vtorichniy) energiya resurslari</b> — texnologik jarayonning chiqindi issiqligi (tutun gazlari, kondensat, sovutish suvi), qayta ishlatilsa yangi yoqilg'i sarflanmaydi. Iste'molchi sotib oladigan energiya (elektr, issiqlik, gaz) yakuniy energiya deyiladi.</li>
+              <li><b>Birlamchi energiya sarfi:</b> <code>PE = Σ (yakuniy energiya × birlamchi omil)</code>. Elektr uchun omil yuqori (~2,5), chunki u issiqlik elektr stansiyasida yoqilg'idan ~40% FIK bilan olinadi. Shuning uchun elektr bilan isitish birlamchi energiya bo'yicha qimmat.</li>
+              <li><b>Ikkilamchi resurslardan foydalanish darajasi:</b> <code>foydalanilgan / mavjud potensial × 100%</code>.</li>
+              <li><b>Qayta tiklanuvchi energiya (QTE) ulushi:</b> <code>QTE / (sotib olingan + QTE) × 100%</code> — quyosh, shamol, issiqlik nasosi, biogaz va boshqalar.</li>
+              <li><b>Samaradorlik indeksi (0–100):</b> to'rt ko'rsatkichning vaznli yig'indisi: sig'im 35%, yo'qotishlar kamayishi 25%, QTE ulushi 20%, ikkilamchi resurslar 20%. Bu o'quv mezoni; real loyihada vaznlar standartga (masalan, ISO 50001, milliy normativlar) moslanadi.</li>
+              <li><b>Tavsiyalar</b> sun'iy intellekt (Claude) tomonidan avtomatik beriladi: hisoblangan barcha ko'rsatkichlar AI ga yuboriladi, u ularni mezonlar bilan solishtirib, aniq sonlarga tayangan holda choralar va taxminiy tejamni yozadi. Ma'lumot o'zgarsa, tavsiyalar bir necha soniyadan so'ng o'zi yangilanadi. AI mavjud bo'lmasa, qoidalarga asoslangan zaxira tavsiyalar ko'rsatiladi. Tejam taxminiy, choralar bir-birining ustiga tushishi mumkin; muhim qarorlardan oldin mutaxassis bilan tekshiring.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid3">
+        <div class="card">
+          <div class="card-head"><h3>Ob'ekt va joriy sarf</h3></div>
+          <div class="card-body">
+            <details class="theory" style="margin:0 0 16px;">
+              <summary>Nazariy ma'lumot</summary>
+              <div class="theory-body">
+                <p>Bu karta — hisobning <b>boshlang'ich ma'lumotlari</b>. Platforma barcha ko'rsatkichlarni, indeksni va AI tavsiyalarini shu sonlardan chiqaradi.</p>
+                <ul>
+                  <li><b>Foydali maydon (m²)</b> — isitiladigan yoki ishlatiladigan maydon. Energiya sig'imi shunga bo'linib hisoblanadi: <code>EI = energiya / maydon</code>. Manba: texnik pasport yoki Modul 2.</li>
+                  <li><b>Odamlar soni</b> — doimiy bo'ladigan odamlar. «Bir kishiga sarf» uchun: <code>energiya / odamlar</code>.</li>
+                  <li><b>Elektr</b> — hisoblagich ko'rsatkichi yoki kvitansiyalar yig'indisi (kVt·soat).</li>
+                  <li><b>Issiqlik</b> — markaziy tarmoqdan olingan issiqlik (kVt·soat); issiqlik hisoblagichi yoki to'lov hujjatlari. Gigakaloriya bo'lsa: <code>1 Gkal ≈ 1163 kVt·soat</code>.</li>
+                  <li><b>Gaz</b> — kub metrda kiritiladi, platforma kVt·soatga o'tkazadi: <code>1 m³ ≈ 9,3 kVt·soat</code>. Shunda uchala energiya turini bir birlikda qo'shish mumkin.</li>
+                  <li><b>O'rtacha energiya narxi</b> — 1 kVt·soat uchun o'rtacha to'lov (so'm). Faqat tejamni so'mga aylantirish uchun: <code>pul = kVt·soat × narx</code>. Ko'rsatkichlarga ta'sir qilmaydi.</li>
+                </ul>
+                <p><b>Davr tanlovi.</b> Ma'lumotni qaysi davr bo'yicha bilsangiz, shuni tanlang. Platforma hammasini yillikka o'tkazib hisoblaydi: <code>yillik = kunlik × 365</code>, <code>haftalik × 365/7</code>, <code>oylik × 12</code>. Davrni almashtirsangiz, kiritilgan sonlar ekvivalentiga aylanadi, natija o'zgarmaydi.</p>
+                <p><b>Jami energiya</b> = elektr + issiqlik + gaz (kVt·soat) + qayta tiklanuvchi manbalar. Mana shu son keyingi ko'rsatkichlarning asosi.</p>
+                <p><b>Ko'p uchraydigan xatolar:</b> oylik sonni yillik deb yozish; gazni kub metr o'rniga kVt·soatda yozish; ishlatilmaydigan turga 0 yozmaslik (bo'sh qoldirsangiz ham 0 deb olinadi); bir yilda emas, bir necha oyning yig'indisini kiritish.</p>
+              </div>
+            </details>
+            <div class="field"><label>Foydali maydon (m²)</label><input type="number" id="k_area" value="400" min="1" step="10"></div>
+            <div class="field"><label>Odamlar soni</label><input type="number" id="k_people" value="30" min="1" step="1"></div>
+            <div class="field"><label>Sarf qaysi davr uchun kiritiladi</label>
+              <select id="k_period"><option value="365">Kunlik</option><option value="52.142857">Haftalik</option><option value="12">Oylik</option><option value="1" selected>Yillik</option></select></div>
+            <div class="field"><label><span>Elektr (kVt·soat/<span class="k-per">yil</span>)</span></label><input type="number" id="k_e" value="40000" min="0" step="any"></div>
+            <div class="field"><label><span>Issiqlik (kVt·soat/<span class="k-per">yil</span>)</span></label><input type="number" id="k_h" value="30000" min="0" step="any"></div>
+            <div class="field"><label><span>Gaz (m³/<span class="k-per">yil</span>)</span></label><input type="number" id="k_g" value="3000" min="0" step="any"></div>
+            <div class="field"><label>O'rtacha energiya narxi <span class="val" id="k_priceVal">600 so'm</span></label><input type="range" id="k_price" min="100" max="1500" value="600" step="10"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Bazaviy yil bilan solishtirish</h3></div>
+          <div class="card-body">
+            <details class="theory" style="margin:0 0 16px;">
+              <summary>Nazariy ma'lumot</summary>
+              <div class="theory-body">
+                <p><b>Bazaviy yil</b> — boshlang'ich nuqta: tejamkorlik choralari ko'rilishidan <i>oldingi</i> yil. Joriy yil natijasi shu yil bilan solishtiriladi, shunda chora haqiqatan foyda berganini ko'rasiz.</p>
+                <p><b>Kiritiladigan uchta son:</b></p>
+                <ul>
+                  <li><b>Bazaviy yil jami energiyasi</b> — o'sha yilgi umumiy sarf (kVt·soat).</li>
+                  <li><b>Bazaviy yil yo'qotishlari (L₀)</b> — o'sha yilgi issiqlik va boshqa yo'qotishlar.</li>
+                  <li><b>Joriy yil yo'qotishlari (L₁)</b> — hozirgi yo'qotishlar.</li>
+                </ul>
+                <p><b>Ular qanday ishlatiladi:</b></p>
+                <ul>
+                  <li><b>Yo'qotishlar kamayishi</b> = <code>(L₀ − L₁) / L₀</code>. Masalan, 52 000 dan 45 000 ga tushsa: (52 000 − 45 000) / 52 000 ≈ <b>13,5%</b>.</li>
+                  <li><b>Sig'im kamayishi</b> = <code>(EI₀ − EI₁) / EI₀</code>, bunda EI₀ = bazaviy jami energiya / maydon. Joriy sarf bazaviydan kam bo'lsa, natija musbat.</li>
+                  <li><b>Manfiy natija</b> sarf yoki yo'qotish bazaviy yilga qaraganda <b>oshganini</b> bildiradi.</li>
+                </ul>
+                <p><b>Elektrning birlamchi omili (2,5).</b> Elektr issiqlik stansiyasida yoqilg'idan ~40% FIK bilan olinadi (1 ÷ 0,4 ≈ 2,5), shuning uchun 1 kVt·soat elektr uchun taxminan 2,5 kVt·soat yoqilg'i sarflanadi. Issiqlik va gaz uchun omil 1,1 deb olinadi. Omil qanchalik katta bo'lsa, shu energiya turi "tabiat uchun" shunchalik qimmat.</p>
+              </div>
+            </details>
+            <div class="field"><label>Bazaviy yil jami energiya (kVt·soat)</label><input type="number" id="k_base" value="120000" min="0" step="1000"></div>
+            <div class="field"><label>Bazaviy yil yo'qotishlari (kVt·soat)</label><input type="number" id="k_l0" value="52000" min="0" step="1000"></div>
+            <div class="field"><label>Joriy yil yo'qotishlari (kVt·soat)</label><input type="number" id="k_l1" value="45000" min="0" step="1000"></div>
+            <div class="field"><label>Elektrning birlamchi omili <span class="val" id="k_pefVal">2.5</span></label><input type="range" id="k_pef" min="1" max="3.5" value="2.5" step="0.1"></div>
+            <p class="note" style="margin:0;">Issiqlik va gaz uchun birlamchi omil 1,1 deb olinadi.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Qayta tiklanuvchi va ikkilamchi</h3></div>
+          <div class="card-body">
+            <details class="theory" style="margin:0 0 16px;">
+              <summary>Nazariy ma'lumot</summary>
+              <div class="theory-body">
+                <p><b>Qayta tiklanuvchi energiya (QTE)</b> — tabiatda doimiy yangilanib turadigan manbalardan olingan energiya: quyosh, shamol, suv, biogaz, yer va havo issiqligi (issiqlik nasosi). Yoqilg'i yoqilmaydi, zararli chiqindi kam bo'ladi.</p>
+                <ul>
+                  <li><b>Quyosh ishlab chiqarishi</b> — panelning bir yillik elektr berishi: <code>E = P × t_q × 365 × η</code>. Qiymatni Modul 7 dan olishingiz mumkin. Panel yo'q bo'lsa, 0.</li>
+                  <li><b>Boshqa QTE</b> — issiqlik nasosi, biogaz, shamol turbinasi kabilarning yillik ishlab chiqarishi (kVt·soat). Issiqlik nasosida foydali qism: <code>ishlab chiqarilgan issiqlik − sarflangan elektr</code>.</li>
+                  <li><b>QTE ulushi</b> = <code>QTE / jami energiya × 100%</code>. Maqsad ≥ 30%. Ulush oshgani sari tarmoqdan sotib olinadigan energiya va birlamchi resurs sarfi kamayadi.</li>
+                  <li><b>Quyosh bilan qoplangan elektr</b> = <code>quyosh / elektr sarfi</code>. Elektrning qancha qismi panelga to'g'ri kelishini ko'rsatadi.</li>
+                </ul>
+                <p><b>Ikkilamchi energiya resurslari (IER)</b> — texnologik jarayonda foydasiz chiqib ketadigan, lekin qayta ishlatish mumkin bo'lgan issiqlik: qozon tutun gazlari, kompressor va sovutish tizimi issiqligi, kondensat, chiqindi suv, ventilyatsiya havosi.</p>
+                <ul>
+                  <li><b>Potensial</b> — shu issiqlikdan bir yilda jami qancha olish mumkinligi (energoauditda o'lchanadi yoki baholanadi).</li>
+                  <li><b>Foydalanilgan qism</b> — haqiqatda qaytarib ishlatilgani (rekuperator, utilizator, issiqlik almashtirgich orqali).</li>
+                  <li><b>Foydalanish darajasi</b> = <code>foydalanilgan / potensial × 100%</code>. Maqsad ≥ 60%. Har bir ishlatilgan kVt·soat yangi yoqilg'i sarflamaslikni anglatadi.</li>
+                </ul>
+                <p><b>Muhim:</b> bu maydonlar doim <b>yillik</b> kiritiladi (davr tanlovi ularga ta'sir qilmaydi). Foydalanilgan qism potensialdan oshmasligi kerak. Manba bo'lmasa, 0 yozing.</p>
+              </div>
+            </details>
+            <div class="field"><label>Quyosh ishlab chiqarishi (kVt·soat/yil)</label><input type="number" id="k_sol" value="0" min="0" step="500"></div>
+            <div class="field"><label>Boshqa QTE: issiqlik nasosi, biogaz, shamol (kVt·soat/yil)</label><input type="number" id="k_res" value="0" min="0" step="500"></div>
+            <div class="field"><label>Ikkilamchi resurs potensiali (kVt·soat/yil)</label><input type="number" id="k_secPot" value="12000" min="0" step="500"></div>
+            <div class="field"><label>Shundan foydalanilgan (kVt·soat/yil)</label><input type="number" id="k_sec" value="2000" min="0" step="500"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head"><h3>Ko'rsatkichlar</h3><span class="chip" id="k_grade">—</span></div>
+          <div class="card-body">
+            <details class="theory" open style="margin:0 0 18px;max-width:none;">
+              <summary>Nazariy ma'lumot — ko'rsatkichlarni qanday o'qish kerak</summary>
+              <div class="theory-body">
+                <p>Har bir qator binoning energiyadan foydalanishini bitta jihatdan baholaydi. Chap tomonda nomi, o'ngda hisoblangan qiymati, ostida rangli chiziq turadi.</p>
+                <ul>
+                  <li><b>Energiya sig'imi</b> — 1 m² ga yiliga ketadigan energiya: <code>jami energiya / maydon</code>. <b>Kam bo'lgani yaxshi.</b> Klass: A &lt; 50, B &lt; 100, C &lt; 150, D &lt; 200, E &lt; 250, F &lt; 300, G &gt; 300 kVt·soat/m².</li>
+                  <li><b>Bir kishiga sarf</b> — <code>jami energiya / odamlar soni</code>. Binolarni odam soni bo'yicha solishtirish uchun ma'lumot sifatida beriladi, indeksga kirmaydi.</li>
+                  <li><b>Sig'imning bazaviy yilga nisbatan kamayishi</b> — <code>(EI₀ − EI₁) / EI₀</code>. Musbat bo'lsa, sarf o'tgan yilga qaraganda kamaygan. <b>Ko'p bo'lgani yaxshi.</b></li>
+                  <li><b>Yo'qotishlarning kamayishi</b> — <code>(L₀ − L₁) / L₀</code>. Izolyatsiya va ta'mir natijasini ko'rsatadi. <b>Maqsad ≥ 20%.</b></li>
+                  <li><b>Yo'qotishlar ulushi</b> — <code>L₁ / jami energiya</code>. Sotib olingan energiyaning qancha qismi bekor ketishini bildiradi. <b>Kam bo'lgani yaxshi</b> (30% dan oshsa jiddiy muammo).</li>
+                  <li><b>Birlamchi energiya</b> — <code>E × 2,5 + (H + G) × 1,1</code>. Elektr va yoqilg'ini ishlab chiqarish uchun sarflangan jami tabiiy resurs. U yakuniy sarfdan katta bo'ladi. <b>Kam bo'lgani yaxshi.</b></li>
+                  <li><b>Ikkilamchi resurslardan foydalanish</b> — <code>ishlatilgan / mavjud potensial</code>. Chiqindi issiqlikning qancha qismi qayta ishlatilgani. <b>Maqsad ≥ 60%.</b></li>
+                  <li><b>QTE ulushi</b> — <code>QTE / jami energiya</code>. Quyosh va boshqa qayta tiklanuvchi manbalar ulushi. <b>Maqsad ≥ 30%.</b></li>
+                  <li><b>Quyosh bilan qoplangan elektr</b> — <code>quyosh ishlab chiqarishi / elektr sarfi</code>. Elektrning qancha qismi panelga to'g'ri kelishini ko'rsatadi.</li>
+                </ul>
+                <p><b>Rangli chiziq:</b> to'liq bo'lsa, natija yaxshi. «Yo'qotishlar ulushi» va «Birlamchi energiya» da kam bo'lgani yaxshi, shuning uchun chiziq ularda teskari hisoblanadi.</p>
+                <p><b>Samaradorlik indeksi (0–100)</b> — sig'im (35%), yo'qotish kamayishi (25%), QTE (20%) va ikkilamchi resurslar (20%) ballarining yig'indisi. 80 dan yuqori — yuqori, 60–80 — yaxshi, 40–60 — o'rtacha, 40 dan past — past daraja.</p>
+              </div>
+            </details>
+            <div class="score-big"><b id="k_score">—</b><span>/ 100 samaradorlik indeksi</span></div>
+            <div id="k_kpis"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Tavsiyalar va takliflar</h3><span class="chip" id="k_src">qoidalar (zaxira)</span></div>
+          <div class="card-body">
+            <div class="ai-bar">
+              <label class="ai-auto"><input type="checkbox" id="k_aiAuto" checked> AI avtomatik yangilasin</label>
+              <button class="btn2" id="k_aiBtn" type="button">✨ AI dan so'rash</button>
+              <button class="btn2" id="k_aiStop" type="button" hidden>■ To'xtatish</button>
+            </div>
+            <div id="k_aiStatus" class="ai-status" aria-live="polite"></div>
+            <div id="k_summary" style="font-size:0.86rem;color:var(--ink-soft);line-height:1.55;margin-bottom:14px;"></div>
+            <div id="k_recos"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:22px;">
+        <div class="card-head"><h3>Sarf va xarajat: kunlik, haftalik, oylik, yillik</h3></div>
+        <div class="card-body" style="overflow-x:auto;">
+          <table class="datatable" id="k_periodTable"></table>
+          <p class="note" style="margin-top:10px;">Yillik sarf asos qilib olinadi: kunlik = yillik ÷ 365, haftalik = kunlik × 7, oylik = yillik ÷ 12. Xarajat o'rtacha energiya narxi bo'yicha hisoblanadi.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:22px;">
+        <div class="card-head"><h3>Hisob formulalari</h3></div>
+        <div class="card-body"><div class="formula-box" id="k_formula"></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="printReport">
+  <h1 id="prTitle">Energiya audit hisoboti</h1>
+  <div class="pr-sub" id="prDate"></div>
+  <h2>Issiqlik yo'qotilishi va energiya klassi</h2>
+  <table id="prT2"></table>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const css = getComputedStyle(document.documentElement);
+  const cvar = n => css.getPropertyValue(n).trim();
+  function fmt(n, d=0){ if(!isFinite(n)) return '—'; return n.toLocaleString('ru-RU', {maximumFractionDigits:d, minimumFractionDigits:d}); }
+
+  /* ---------- TAB SWITCHING ---------- */
+  const tabs = document.querySelectorAll('.tab');
+  const modules = document.querySelectorAll('.module');
+  function activate(id){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+    modules.forEach(m => m.classList.toggle('active', m.id === id));
+  }
+  tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+  document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => activate(b.dataset.goto)));
+
+  /* shared state */
+  const state = { m2:{} };
+
+  /* ================= MODULE 2: envelope heat loss ================= */
+  const bands = [
+    {l:'A', max:50, color:'--gA'}, {l:'B', max:100, color:'--gB'}, {l:'C', max:150, color:'--gC'},
+    {l:'D', max:200, color:'--gD'}, {l:'E', max:250, color:'--gE'}, {l:'F', max:300, color:'--gF'}, {l:'G', max:Infinity, color:'--gG'},
+  ];
+  const scaleBox = $('scaleBox');
+  bands.forEach(b => {
+    const seg = document.createElement('div'); seg.className='cert-seg'; seg.style.background = cvar(b.color); seg.textContent=b.l;
+    scaleBox.appendChild(seg);
+  });
+  const pointerEl = document.createElement('div');
+  pointerEl.className = 'cert-pointer';
+  pointerEl.innerHTML = `<span id="ptrLabel" class="mono"></span><div class="tri"></div>`;
+  scaleBox.style.position = 'relative';
+  scaleBox.appendChild(pointerEl);
+
+  function computeM2(){
+    const area = parseFloat($('bldArea').value);
+    const height = parseFloat($('bldHeight').value);
+    const Aw = parseFloat($('wallArea').value);
+    const Ai = parseFloat($('winArea').value);
+    const Ar = parseFloat($('roofArea').value);
+    const Uw = parseFloat($('wallQ').value), Ui = parseFloat($('winQ').value), Ur = parseFloat($('roofQ').value);
+    const n = parseFloat($('ventN').value);
+    const tIn = parseFloat($('tIn').value), tOut = parseFloat($('tOut').value), days = parseFloat($('heatDays').value);
+
+    $('areaVal').textContent = fmt(area)+' m²'; $('heightVal').textContent = height.toFixed(1)+' m';
+    $('wallAreaVal').textContent = fmt(Aw)+' m²'; $('winAreaVal').textContent = fmt(Ai)+' m²'; $('roofAreaVal').textContent = fmt(Ar)+' m²';
+    $('nVal').textContent = n.toFixed(1)+' 1/soat';
+    $('tinVal').textContent = tIn+' °C'; $('toutVal').textContent = tOut+' °C'; $('daysVal').textContent = days+' kun';
+
+    const V = area * height;
+    const Ht = Uw*Aw + Ui*Ai + Ur*Ar;
+    const Hv = 0.34 * n * V;
+    const Htotal = Ht + Hv;
+    const HDD = Math.max(tIn - tOut, 0) * days;
+    const Qannual = Htotal * HDD * 24 / 1000;
+    const spec = Qannual / area;
+
+    $('hddOut').textContent = fmt(HDD) + ' °C·kun';
+    $('htOut').textContent = fmt(Ht,0) + ' W/K';
+    $('hvOut').textContent = fmt(Hv,0) + ' W/K';
+    $('hTotalOut').textContent = fmt(Htotal,0) + ' W/K';
+    $('qAnnualOut').textContent = fmt(Qannual) + ' kVt·soat/yil';
+    $('specVal').textContent = fmt(spec,1) + ' kVt·soat/m²/yil';
+
+    let bandIdx = bands.findIndex(b => spec <= b.max);
+    if(bandIdx===-1) bandIdx = bands.length-1;
+    const band = bands[bandIdx];
+    const pct = Math.min(spec/350,1)*100;
+    pointerEl.style.left = pct+'%';
+    $('ptrLabel').textContent = fmt(spec,0);
+
+    const color = cvar(band.color);
+    $('certCardHolder').innerHTML = `
+      <div class="cert-card">
+        <div class="cert-card-top">
+          <div class="cert-badge" style="background:${color}">${band.l}</div>
+          <div class="cert-info"><h3>Hisoblangan energiya klassi</h3><p>${fmt(spec,1)} kVt·soat/m²/yil solishtirma sarf asosida</p></div>
+        </div>
+        <div class="cert-card-bottom">
+          <span>MAYDON: ${fmt(area)} m²</span>
+          <span>YILLIK: ${fmt(Qannual)} kVt·soat</span>
+          <span>KLASS: ${band.l}</span>
+        </div>
+      </div>`;
+
+    const RECO = {
+      A: "A'lo natija. Qo'shimcha tejam uchun issiqlik tiklash (rekuperatsiya) tizimini ko'rib chiqing.",
+      B: "Yaxshi ko'rsatkich. Deraza atroflarini germetiklashtirish yana bir necha foiz tejam beradi.",
+      C: "O'rtacha. Devor izolyatsiyasini yaxshilash yoki eski derazalarni energiya tejamkor turga almashtirish tavsiya etiladi.",
+      D: "Sezilarli yo'qotish bor. Devor izolyatsiyasi (U≈0.3 gacha) va ikki qavatli deraza o'rnatish sarfni ~30–40% kamaytirishi mumkin.",
+      E: "Yuqori yo'qotish. Tom va devor izolyatsiyasini birinchi navbatda ko'rib chiqing — eng arzon va tez natija beruvchi chora.",
+      F: "Juda yuqori yo'qotish. To'liq energoaudit va bosqichma-bosqich izolyatsiya rejasi zarur.",
+      G: "Kritik daraja. Bino amalda izolyatsiyalanmagan — izolyatsiya, deraza va shamollatish tizimini qayta ko'rib chiqish shart.",
+    };
+    $('recoBox').innerHTML = `<b style="color:var(--ink)">Tavsiya (${band.l} klass):</b> ${RECO[band.l] || ''}`;
+
+    state.m2 = { area, Qannual, spec, band: band.l, HDD, Htotal };
+  }
+  ['bldArea','bldHeight','wallArea','winArea','roofArea','wallQ','winQ','roofQ','ventN','tIn','tOut','heatDays'].forEach(id => $(id).addEventListener('input', computeM2));
+
+  /* ================= MODULE 5: electricity / heat / gas appliance-based formulas ================= */
+  function periodRow(label, qty, unit, price, currency, hi){
+    const cost = qty*price;
+    return `<tr><td>${label}</td><td${hi?' class="hi"':''}>${fmt(qty,qty<10?2:0)} ${unit}</td><td${hi?' class="hi"':''}>${fmt(cost)} ${currency}</td></tr>`;
+  }
+  function buildPeriodTable(tableId, dayVal, unit, price, extra){
+    const week = dayVal*7, month = dayVal*30, year = extra!=null ? dayVal*extra : dayVal*365;
+    $(tableId).innerHTML = `
+      <tr><th>Davr</th><th>Miqdor</th><th>Xarajat</th></tr>
+      ${periodRow('Kunlik', dayVal, unit, price, "so'm")}
+      ${periodRow('Haftalik', week, unit, price, "so'm")}
+      ${periodRow('Oylik', month, unit, price, "so'm")}
+      ${periodRow('Yillik'+(extra!=null?' (mavsum)':''), year, unit, price, "so'm", true)}
+    `;
+  }
+
+  /* generic appliance-list manager, reused for elektr / issiqlik / gaz */
+  function makeApplianceGroup(cfg){
+    // cfg: {items, prefix, valSuffix, valDivisor, countId, listId, newNameId, newValId, newHId, addBtnId, onChange}
+    let items = cfg.items;
+    const listEl = $(cfg.listId);
+
+    function render(){
+      listEl.innerHTML = '';
+      items.forEach(a => {
+        const row = document.createElement('div');
+        row.className = 'appl-row';
+        row.innerHTML = `
+          <input type="checkbox" id="${cfg.prefix}chk_${a.id}" ${a.hrs>0?'checked':''}>
+          <div class="name">${a.name}<span class="w">${a.val} ${cfg.valSuffix}</span></div>
+          <div class="hrs"><input type="number" id="${cfg.prefix}hrs_${a.id}" value="${a.hrs}" min="0" max="24" step="0.5"></div>
+          <button class="appl-del" data-id="${a.id}" title="O'chirish">✕</button>
+        `;
+        listEl.appendChild(row);
+      });
+      listEl.querySelectorAll('.appl-del').forEach(btn => btn.addEventListener('click', () => {
+        items = items.filter(a => a.id !== btn.dataset.id);
+        render(); compute();
+      }));
+      listEl.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', compute);
+        inp.addEventListener('change', compute);
+      });
+    }
+
+    function compute(){
+      let dayVal = 0, activeCount = 0;
+      items.forEach(a => {
+        const chk = $(cfg.prefix+'chk_'+a.id), hrsInp = $(cfg.prefix+'hrs_'+a.id);
+        if(!chk) return;
+        const row = chk.closest('.appl-row');
+        const on = chk.checked;
+        row.classList.toggle('disabled', !on);
+        hrsInp.disabled = !on;
+        if(on){ activeCount++; dayVal += (a.val * (parseFloat(hrsInp.value)||0)) / cfg.valDivisor; }
+      });
+      $(cfg.countId).textContent = activeCount + ' ta faol';
+      cfg.onChange(dayVal);
+    }
+
+    $(cfg.addBtnId).addEventListener('click', () => {
+      const name = $(cfg.newNameId).value.trim();
+      const val = parseFloat($(cfg.newValId).value);
+      const h = parseFloat($(cfg.newHId).value);
+      if(!name || !val || isNaN(h)) return;
+      items.push({name, val, hrs:h, id:'c'+Date.now()});
+      $(cfg.newNameId).value=''; $(cfg.newValId).value=''; $(cfg.newHId).value='';
+      render(); compute();
+    });
+
+    render();
+    compute();
+    return { compute };
+  }
+
+  /* ---------- combined A–G consumption category ---------- */
+  const totBands = [
+    {l:'A', max:150, color:'--gA'}, {l:'B', max:300, color:'--gB'}, {l:'C', max:450, color:'--gC'},
+    {l:'D', max:600, color:'--gD'}, {l:'E', max:800, color:'--gE'}, {l:'F', max:1000, color:'--gF'}, {l:'G', max:Infinity, color:'--gG'},
+  ];
+  const scaleBoxTot = $('scaleBoxTot');
+  totBands.forEach(b => {
+    const seg = document.createElement('div'); seg.className='cert-seg'; seg.style.background = cvar(b.color); seg.textContent=b.l;
+    scaleBoxTot.appendChild(seg);
+  });
+  const pointerTot = document.createElement('div');
+  pointerTot.className = 'cert-pointer';
+  pointerTot.innerHTML = `<span id="ptrLabelTot" class="mono"></span><div class="tri"></div>`;
+  scaleBoxTot.style.position = 'relative';
+  scaleBoxTot.appendChild(pointerTot);
+
+  const res5 = { elecDay:0, heatDay:0, gasDay:0 };
+  const GAS_CAL = 9.3; // tabiiy gazning past kalorik qiymati, kVt·soat/m³ (≈ 8000 kkal/m³)
+
+  function updateTotalClass(){
+    const elecMonth = res5.elecDay*30;
+    const heatMonth = res5.heatDay*30;
+    const gasMonthKwh = res5.gasDay*30*GAS_CAL;
+    const total = elecMonth + heatMonth + gasMonthKwh;
+
+    $('totKwhChip').textContent = fmt(total) + ' kVt·soat/oy';
+
+    let idx = totBands.findIndex(b => total <= b.max);
+    if(idx===-1) idx = totBands.length-1;
+    const band = totBands[idx];
+    const pct = Math.min(total/1100,1)*100;
+    pointerTot.style.left = pct+'%';
+    $('ptrLabelTot').textContent = fmt(total,0);
+
+    const color = cvar(band.color);
+    $('certCardHolderTot').innerHTML = `
+      <div class="cert-card">
+        <div class="cert-card-top">
+          <div class="cert-badge" style="background:${color}">${band.l}</div>
+          <div class="cert-info"><h3>Umumiy energiya sarfi toifasi</h3><p>${fmt(total)} kVt·soat/oy (elektr + issiqlik + gaz ekvivalenti) asosida</p></div>
+        </div>
+        <div class="cert-card-bottom">
+          <span>ELEKTR: ${fmt(elecMonth)} kVt·soat</span>
+          <span>ISSIQLIK: ${fmt(heatMonth)} kVt·soat</span>
+          <span>GAZ (ekv.): ${fmt(gasMonthKwh)} kVt·soat</span>
+          <span>TOIFA: ${band.l}</span>
+        </div>
+      </div>`;
+
+    $('totBreakdown').innerHTML = `
+      <tr><th>Manba</th><th>Oylik (kVt·soat ekv.)</th><th>Ulushi</th></tr>
+      <tr><td>Elektr</td><td>${fmt(elecMonth)}</td><td>${total>0?fmt(elecMonth/total*100,0):0}%</td></tr>
+      <tr><td>Issiqlik</td><td>${fmt(heatMonth)}</td><td>${total>0?fmt(heatMonth/total*100,0):0}%</td></tr>
+      <tr><td>Gaz</td><td>${fmt(gasMonthKwh)}</td><td>${total>0?fmt(gasMonthKwh/total*100,0):0}%</td></tr>
+      <tr><td class="hi">Jami</td><td class="hi">${fmt(total)}</td><td class="hi">100%</td></tr>`;
+  }
+
+  const feGroup = makeApplianceGroup({
+    items: [
+      {name:'Konditsioner / isitgich', val:1500, hrs:4, id:'e_ac'},
+      {name:'Muzlatgich', val:150, hrs:24, id:'e_fridge'},
+      {name:'Kir yuvish mashinasi', val:500, hrs:1, id:'e_wash'},
+      {name:'Televizor', val:100, hrs:4, id:'e_tv'},
+      {name:'Yoritish', val:200, hrs:5, id:'e_light'},
+    ],
+    prefix:'fe_', valSuffix:'Vt', valDivisor:1000,
+    countId:'fe_count', listId:'fe_applianceList',
+    newNameId:'fe_newName', newValId:'fe_newVal', newHId:'fe_newH', addBtnId:'fe_addBtn',
+    onChange: (dayKwh) => {
+      const price = parseFloat($('fe_price').value);
+      $('fe_priceVal').textContent = fmt(price)+" so'm";
+      buildPeriodTable('fe_table', dayKwh, 'kVt·soat', price);
+      res5.elecDay = dayKwh; updateTotalClass();
+    }
+  });
+  $('fe_price').addEventListener('input', () => feGroup.compute());
+
+  const fhGroup = makeApplianceGroup({
+    items: [
+      {name:'Markazlashgan isitish radiatorlari', val:8, hrs:16, id:'h_rad'},
+      {name:'Elektr konvektor', val:2, hrs:0, id:'h_conv'},
+      {name:'Issiq suv qozoni (isitish)', val:12, hrs:0, id:'h_boiler'},
+      {name:'Pol osti isitish tizimi', val:3, hrs:0, id:'h_floor'},
+    ],
+    prefix:'fh_', valSuffix:'kVt', valDivisor:1,
+    countId:'fh_count', listId:'fh_applianceList',
+    newNameId:'fh_newName', newValId:'fh_newVal', newHId:'fh_newH', addBtnId:'fh_addBtn',
+    onChange: (dayKwh) => {
+      const days = parseFloat($('fh_days').value), price = parseFloat($('fh_price').value);
+      $('fh_daysVal').textContent = days+' kun/yil'; $('fh_priceVal').textContent = fmt(price)+" so'm";
+      buildPeriodTable('fh_table', dayKwh, 'kVt·soat', price, days);
+      res5.heatDay = dayKwh; updateTotalClass();
+    }
+  });
+  ['fh_days','fh_price'].forEach(id => $(id).addEventListener('input', () => fhGroup.compute()));
+
+  const fgGroup = makeApplianceGroup({
+    items: [
+      {name:'Gaz plita (oshxona)', val:0.3, hrs:2, id:'g_stove'},
+      {name:'Gaz qozoni (isitish)', val:1.8, hrs:0, id:'g_boiler'},
+      {name:'Gaz suv isitgich (kolonka)', val:1.2, hrs:1, id:'g_water'},
+      {name:'Gaz duxovka', val:0.35, hrs:0.5, id:'g_oven'},
+    ],
+    prefix:'fg_', valSuffix:'m³/soat', valDivisor:1,
+    countId:'fg_count', listId:'fg_applianceList',
+    newNameId:'fg_newName', newValId:'fg_newVal', newHId:'fg_newH', addBtnId:'fg_addBtn',
+    onChange: (dayM3) => {
+      const price = parseFloat($('fg_price').value);
+      $('fg_priceVal').textContent = fmt(price)+" so'm";
+      buildPeriodTable('fg_table', dayM3, 'm³', price);
+      res5.gasDay = dayM3; updateTotalClass();
+    }
+  });
+  $('fg_price').addEventListener('input', () => fgGroup.compute());
+
+
+  /* ---------- PRINT REPORT ---------- */
+  $('printBtn').addEventListener('click', () => {
+    $('prDate').textContent = 'Sana: ' + new Date().toLocaleDateString('uz-UZ');
+    $('prT2').innerHTML = `<tr><th>Ko'rsatkich</th><th>Qiymat</th></tr>
+      <tr><td>Maydon</td><td>${fmt(state.m2.area)} m²</td></tr>
+      <tr><td>Yillik isitish energiyasi</td><td>${fmt(state.m2.Qannual)} kVt·soat</td></tr>
+      <tr><td>Solishtirma sarf</td><td>${fmt(state.m2.spec,1)} kVt·soat/m²/yil</td></tr>
+      <tr><td>Energiya klassi</td><td>${state.m2.band}</td></tr>`;
+    window.print();
+  });
+
+  /* ---------- sovutish (konditsioner): yozgi issiqlik tushumi ---------- */
+  function computeCooling(){
+    const v = id => parseFloat($(id).value);
+    // bino ma'lumotlari Modul 2 dan
+    const area = v('bldArea'), height = v('bldHeight');
+    const Aw = v('wallArea'), Ai = v('winArea'), Ar = v('roofArea');
+    const Uw = v('wallQ'), Ui = v('winQ'), Ur = v('roofQ'), n = v('ventN');
+    // sovutishga oid kiritishlar
+    const tIn = v('fc_tIn'), tOut = v('fc_tOut'), dTq = v('fc_dTq'), irr = v('fc_irr'), shade = v('fc_shade');
+    const people = v('fc_people'), qInt = v('fc_qint'), cop = v('fc_cop'), lf = v('fc_lf');
+    const hrs = v('fc_hours'), days = v('fc_days'), price = v('fe_price');
+
+    $('fc_tInVal').textContent = tIn+' °C'; $('fc_tOutVal').textContent = tOut+' °C'; $('fc_dTqVal').textContent = dTq+' K';
+    $('fc_irrVal').textContent = irr+' Vt/m²'; $('fc_peopleVal').textContent = people+' kishi'; $('fc_qintVal').textContent = qInt+' Vt/m²';
+    $('fc_copVal').textContent = cop.toFixed(1); $('fc_lfVal').textContent = lf.toFixed(2);
+    $('fc_hoursVal').textContent = hrs+' soat'; $('fc_daysVal').textContent = days+' kun/yil';
+    $('fc_srcInfo').textContent = `Modul 2 dan: maydon ${fmt(area)} m², balandlik ${height.toFixed(1)} m, devor ${fmt(Aw)} m², deraza ${fmt(Ai)} m², tom ${fmt(Ar)} m².`;
+
+    const dT = Math.max(tOut - tIn, 0);
+    const V = area*height;
+    const parts = [
+      ["Devor (o'tkazish)", Uw*Aw*(dT + dTq)],
+      ["Tom (o'tkazish)", Ur*Ar*(dT + dTq)],
+      ["Deraza (o'tkazish)", Ui*Ai*dT],
+      ["Deraza orqali quyosh nuri", Ai*irr*shade],
+      ["Odamlar va jihozlar", people*100 + area*qInt],
+      ["Shamollatish", 0.34*n*V*dT],
+    ];
+    const Qc = parts.reduce((s,p) => s + p[1], 0);        // Vt
+    const design = Qc*1.15/1000;                          // kVt, 15% zaxira bilan
+    const pel = cop > 0 ? Qc/cop/1000 : 0;                // kVt
+    const dayKwh = cop > 0 ? Qc*lf*hrs/cop/1000 : 0;      // kVt·soat/kun
+
+    $('fc_chip').textContent = 'Q_c = ' + fmt(Qc/1000,1) + ' kVt';
+    $('fc_qc').textContent = fmt(Qc) + ' Vt (' + fmt(Qc/1000,1) + ' kVt)';
+    $('fc_design').textContent = fmt(design,1) + ' kVt (≈ ' + fmt(design*3412.14) + ' BTU/soat)';
+    $('fc_pel').textContent = fmt(pel,1) + ' kVt';
+
+    $('fc_contrib').innerHTML = '<tr><th>Manba</th><th>Vt</th><th>Ulushi</th></tr>' +
+      parts.map(([name,q]) => {
+        const pct = Qc > 0 ? q/Qc*100 : 0;
+        return `<tr><td>${name}</td><td>${fmt(q)}</td><td><span class="fc-bar" style="width:${Math.round(pct*0.6)}px"></span>${fmt(pct,0)}%</td></tr>`;
+      }).join('') +
+      `<tr><td class="hi">Jami Q_c</td><td class="hi">${fmt(Qc)}</td><td class="hi">100%</td></tr>`;
+
+    buildPeriodTable('fc_table', dayKwh, 'kVt·soat', price, days);
+  }
+  ['bldArea','bldHeight','wallArea','winArea','roofArea','wallQ','winQ','roofQ','ventN',
+   'fc_tIn','fc_tOut','fc_dTq','fc_irr','fc_shade','fc_people','fc_qint','fc_cop','fc_lf','fc_hours','fc_days','fe_price']
+    .forEach(id => $(id).addEventListener('input', computeCooling));
+
+  /* ================= MODULE 6: periodic calendar report ================= */
+  const OBJ_KEY = 'energoNazoratObjects_v1';
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function loadObjects(){ try{ const raw = localStorage.getItem(OBJ_KEY); return raw ? JSON.parse(raw) : []; }catch(e){ return []; } }
+  function saveObjects(arr){ try{ localStorage.setItem(OBJ_KEY, JSON.stringify(arr)); }catch(e){} }
+
+  let objects = loadObjects();
+  let activeObjId = objects.length ? objects[0].id : null;
+  let activeYear = new Date().getFullYear();
+  const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+
+  function getActiveObj(){ return objects.find(o => o.id === activeObjId); }
+
+  function renderObjList(){
+    $('objCount').textContent = objects.length + ' ta';
+    const el = $('objList');
+    if(objects.length===0){ el.innerHTML = '<div class="empty-state">Hali ob\'ekt qo\'shilmagan.</div>'; return; }
+    el.innerHTML = objects.map(o => `
+      <div class="obj-row ${o.id===activeObjId?'active':''}" data-id="${o.id}">
+        <div><div>${o.name}</div><span class="obj-type">${o.type}</span></div>
+        <button class="obj-del" data-id="${o.id}" title="O'chirish">✕</button>
+      </div>`).join('');
+    el.querySelectorAll('.obj-row').forEach(row => row.addEventListener('click', (e) => {
+      if(e.target.closest('.obj-del')) return;
+      activeObjId = row.dataset.id;
+      renderObjList(); renderCalendar();
+    }));
+    el.querySelectorAll('.obj-del').forEach(btn => btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if(!confirm("Ob'ektni o'chirishni tasdiqlaysizmi? Barcha yillik ma'lumoti ham o'chadi.")) return;
+      objects = objects.filter(o => o.id !== btn.dataset.id);
+      saveObjects(objects);
+      if(activeObjId === btn.dataset.id) activeObjId = objects.length ? objects[0].id : null;
+      renderObjList(); renderCalendar();
+    }));
+  }
+
+  function renderCalendar(){
+    const obj = getActiveObj();
+    $('yearLabel').textContent = activeYear;
+    if(!obj){
+      $('activeObjTitle').textContent = "Ob'ekt tanlanmagan";
+      $('calendarBody').innerHTML = '<div class="empty-state">Chapda ob\'ekt qo\'shing yoki tanlang.</div>';
+      $('calFilledChip').textContent = '0 / 12 oy';
+      $('calFormulaOut').innerHTML = '<div class="empty-state">Avval ob\'ekt qo\'shing yoki tanlang.</div>';
+      drawCalChart([]);
+      return;
+    }
+    $('activeObjTitle').textContent = obj.name + ' — ' + obj.type;
+    const priceE = parseFloat($('cal_priceE').value), priceH = parseFloat($('cal_priceH').value), priceG = parseFloat($('cal_priceG').value);
+
+    let rows = '', monthlyCosts = [], sumE=0, sumH=0, sumG=0, sumCost=0;
+    for(let m=1; m<=12; m++){
+      const key = activeYear+'-'+pad2(m);
+      const rec = obj.records[key] || {e:'',h:'',g:''};
+      const e = parseFloat(rec.e)||0, h = parseFloat(rec.h)||0, g = parseFloat(rec.g)||0;
+      const cost = e*priceE + h*priceH + g*priceG;
+      monthlyCosts.push(cost);
+      sumE+=e; sumH+=h; sumG+=g; sumCost+=cost;
+      const filled = (rec.e!=='' && rec.e!=null) || (rec.h!=='' && rec.h!=null) || (rec.g!=='' && rec.g!=null);
+      rows += `<tr class="${filled?'filled':''}" data-key="${key}">
+        <td>${MONTHS[m-1]}</td>
+        <td><input type="number" min="0" step="0.1" class="cal-in" data-field="e" value="${rec.e}" placeholder="0"></td>
+        <td><input type="number" min="0" step="0.1" class="cal-in" data-field="h" value="${rec.h}" placeholder="0"></td>
+        <td><input type="number" min="0" step="0.1" class="cal-in" data-field="g" value="${rec.g}" placeholder="0"></td>
+        <td class="cal-cost">${fmt(cost)}</td>
+      </tr>`;
+    }
+    $('calendarBody').innerHTML = `
+      <table class="caltable">
+        <tr><th>Oy</th><th>Elektr (kVt·soat)</th><th>Issiqlik (kVt·soat)</th><th>Gaz (m³)</th><th>Xarajat (so'm)</th></tr>
+        ${rows}
+        <tr style="border-top:2px solid var(--line);"><td><b>Yillik jami</b></td><td class="mono"><b>${fmt(sumE)}</b></td><td class="mono"><b>${fmt(sumH)}</b></td><td class="mono"><b>${fmt(sumG)}</b></td><td class="cal-cost"><b>${fmt(sumCost)}</b></td></tr>
+      </table>`;
+
+    $('calendarBody').querySelectorAll('.cal-in').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const tr = inp.closest('tr');
+        const key = tr.dataset.key;
+        if(!obj.records[key]) obj.records[key] = {e:'',h:'',g:''};
+        obj.records[key][inp.dataset.field] = inp.value;
+        saveObjects(objects);
+        renderCalendar();
+      });
+    });
+
+    /* --- formula paneli: o'rtacha, prognoz, eng qimmat oy --- */
+    const f2 = n => n.toLocaleString('ru-RU', {maximumFractionDigits:2});
+    let filledCount = 0, lastFilled = 0, maxIdx = -1;
+    for(let m=1; m<=12; m++){
+      const rec = obj.records[activeYear+'-'+pad2(m)];
+      const has = rec && ['e','h','g'].some(f => rec[f] !== '' && rec[f] != null);
+      if(has){
+        filledCount++;
+        lastFilled = m;
+        if(maxIdx === -1 || monthlyCosts[m-1] > monthlyCosts[maxIdx]) maxIdx = m-1;
+      }
+    }
+    $('calFilledChip').textContent = filledCount + ' / 12 oy';
+    if(filledCount === 0){
+      $('calFormulaOut').innerHTML = '<div class="empty-state">Hisob-kitob ko\'rinishi uchun kamida bitta oy ko\'rsatkichini kiriting.</div>';
+    } else {
+      const lr = obj.records[activeYear+'-'+pad2(lastFilled)];
+      const le = parseFloat(lr.e)||0, lh = parseFloat(lr.h)||0, lg = parseFloat(lr.g)||0;
+      const avg = sumCost / filledCount;
+      const totalEq = sumE + sumH + sumG*GAS_CAL;
+      $('calFormulaOut').innerHTML = `
+        <div class="formula-box" style="margin-top:0;color:var(--ink);">
+          <span class="step">${MONTHS[lastFilled-1]} uchun:</span><br>
+          X = ${f2(le)} × ${f2(priceE)} + ${f2(lh)} × ${f2(priceH)} + ${f2(lg)} × ${f2(priceG)} = <span style="color:var(--amber);">${fmt(monthlyCosts[lastFilled-1])} so'm</span>
+        </div>
+        <div class="out-row"><span class="k">Yillik jami xarajat (kiritilgan oylar)</span><span class="v">${fmt(sumCost)} so'm</span></div>
+        <div class="out-row"><span class="k">O'rtacha oylik = ${fmt(sumCost)} / ${filledCount}</span><span class="v">${fmt(avg)} so'm</span></div>
+        <div class="out-row hi"><span class="k">Yillik prognoz = ${fmt(avg)} × 12</span><span class="v">${fmt(avg*12)} so'm</span></div>
+        <div class="out-row"><span class="k">Eng qimmat oy</span><span class="v">${MONTHS[maxIdx]} — ${fmt(monthlyCosts[maxIdx])} so'm</span></div>
+        <div class="out-row"><span class="k">Jami energiya = E + H + G × ${GAS_CAL}</span><span class="v">${fmt(totalEq)} kVt·soat</span></div>`;
+    }
+
+    drawCalChart(monthlyCosts);
+  }
+
+  function drawCalChart(costs){
+    const svg = $('calChart');
+    if(!costs || costs.length===0){ svg.innerHTML=''; return; }
+    const w=640,h=190,padL=50,padB=28,padT=14,padR=14;
+    const plotW=w-padL-padR, plotH=h-padT-padB;
+    const max = Math.max(...costs,1);
+    const barW = plotW/12;
+    let bars='', labels='';
+    costs.forEach((c,i)=>{
+      const hgt = (c/max)*plotH;
+      const x = padL+i*barW;
+      bars += `<rect x="${x+4}" y="${padT+plotH-hgt}" width="${Math.max(barW-8,4)}" height="${hgt}" rx="2" fill="${cvar('--amber')}"/>`;
+      labels += `<text x="${x+barW/2}" y="${h-8}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="${cvar('--ink-dim')}">${MONTHS[i].slice(0,3)}</text>`;
+    });
+    svg.innerHTML = `<line x1="${padL}" y1="${padT+plotH}" x2="${w-padR}" y2="${padT+plotH}" stroke="${cvar('--line')}" stroke-width="1"/>${bars}${labels}`;
+  }
+
+  $('addObjBtn').addEventListener('click', () => {
+    const name = $('newObjName').value.trim();
+    const type = $('newObjType').value;
+    if(!name) return;
+    const obj = {id:'o'+Date.now(), name, type, records:{}};
+    objects.push(obj);
+    saveObjects(objects);
+    activeObjId = obj.id;
+    $('newObjName').value='';
+    renderObjList(); renderCalendar();
+  });
+
+  $('expObjBtn').addEventListener('click', () => {
+    if(!objects.length){ alert("Saqlash uchun avval ob'ekt qo'shing."); return; }
+    const blob = new Blob([JSON.stringify({app:'energonazorat', v:1, objects}, null, 1)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'energonazorat-obyektlar.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('impObjBtn').addEventListener('click', () => $('impObjFile').click());
+  $('impObjFile').addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try{
+        const d = JSON.parse(rd.result);
+        const list = Array.isArray(d) ? d : d.objects;
+        if(!Array.isArray(list) || list.some(o => !o || !o.id || !o.name)) throw new Error('format');
+        let added = 0;
+        list.forEach(o => {
+          const i = objects.findIndex(x => x.id === o.id);
+          if(i >= 0) objects[i] = o; else { objects.push(o); added++; }
+        });
+        saveObjects(objects);
+        if(!activeObjId && objects.length) activeObjId = objects[0].id;
+        renderObjList(); renderCalendar();
+        alert("Yuklandi: " + list.length + " ta ob'ekt (yangi: " + added + ").");
+      }catch(err){ alert("Fayl noto'g'ri. Platformadan saqlangan faylni tanlang."); }
+      e.target.value = '';
+    };
+    rd.readAsText(f);
+  });
+
+  $('yearPrev').addEventListener('click', () => { activeYear--; renderCalendar(); });
+  $('yearNext').addEventListener('click', () => { activeYear++; renderCalendar(); });
+
+  ['cal_priceE','cal_priceH','cal_priceG'].forEach(id => $(id).addEventListener('input', () => {
+    $('cal_priceEVal').textContent = fmt(parseFloat($('cal_priceE').value))+" so'm";
+    $('cal_priceHVal').textContent = fmt(parseFloat($('cal_priceH').value))+" so'm";
+    $('cal_priceGVal').textContent = fmt(parseFloat($('cal_priceG').value))+" so'm";
+    renderCalendar();
+  }));
+
+  let downloadsCap = null;
+  if(window.claude && window.claude.use){
+    claude.use('downloads').then(d => { downloadsCap = d; }).catch(() => { downloadsCap = null; });
+  }
+
+  $('exportCsvBtn').addEventListener('click', async () => {
+    const obj = getActiveObj();
+    if(!obj){ alert("Avval ob'ekt tanlang yoki qo'shing."); return; }
+    const priceE = parseFloat($('cal_priceE').value), priceH = parseFloat($('cal_priceH').value), priceG = parseFloat($('cal_priceG').value);
+    let csv = 'Oy,Elektr (kVt.soat),Issiqlik (kVt.soat),Gaz (m3),Xarajat (som)\n';
+    for(let m=1;m<=12;m++){
+      const key = activeYear+'-'+pad2(m);
+      const rec = obj.records[key] || {e:0,h:0,g:0};
+      const e=parseFloat(rec.e)||0, h=parseFloat(rec.h)||0, g=parseFloat(rec.g)||0;
+      const cost = e*priceE+h*priceH+g*priceG;
+      csv += `${MONTHS[m-1]},${e},${h},${g},${cost.toFixed(0)}\n`;
+    }
+    const filename = `${obj.name}_${activeYear}.csv`;
+    if(!downloadsCap && window.claude && window.claude.use){
+      try{ downloadsCap = await claude.use('downloads'); }catch(e){ downloadsCap = null; }
+    }
+    if(!downloadsCap){
+      alert("Fayl yuklab olish bu ko'rinishda mavjud emas. Jadvaldagi raqamlarni qo'lda nusxalab oling.");
+      return;
+    }
+    try{
+      await downloadsCap.save({ filename, data: new Blob([csv], {type:'text/csv;charset=utf-8;'}) });
+    }catch(err){
+      if(err && err.code === 'declined') return;
+      alert("Faylni saqlab bo'lmadi: " + (err && err.message ? err.message : 'noma\'lum xato'));
+    }
+  });
+
+  /* ================= MODULE 7: solar investment payback ================= */
+  function computeSolar(){
+    const cost = parseFloat($('sol_cost').value);
+    const power = parseFloat($('sol_pwr').value);
+    const sun = parseFloat($('sol_sun').value);
+    const eff = parseFloat($('sol_eff').value)/100;
+    const price = parseFloat($('sol_price').value);
+    const esc = parseFloat($('sol_esc').value)/100;
+    const deg = parseFloat($('sol_deg').value)/100;
+    const maint = parseFloat($('sol_maint').value);
+
+    $('sol_costVal').textContent = fmt(cost)+" so'm"; $('sol_pwrVal').textContent = power+' kVt';
+    $('sol_sunVal').textContent = sun.toFixed(1)+' soat'; $('sol_effVal').textContent = Math.round(eff*100)+'%';
+    $('sol_priceVal').textContent = fmt(price)+" so'm"; $('sol_escVal').textContent = Math.round(esc*100)+'%';
+    $('sol_degVal').textContent = (deg*100).toFixed(1)+'%'; $('sol_maintVal').textContent = fmt(maint)+" so'm";
+
+    const prodYear1 = power*sun*365*eff;
+    state.sol = { prod: prodYear1 };
+    const saveYear1 = prodYear1*price - maint;
+    $('sol_prodOut').textContent = fmt(prodYear1)+' kVt·soat/yil';
+    $('sol_save1Out').textContent = fmt(saveYear1)+" so'm/yil";
+
+    const years = 15;
+    let cumulative = 0, paybackYear = null, points = [];
+    for(let y=1; y<=years; y++){
+      const prod = prodYear1*Math.pow(1-deg, y-1);
+      const priceY = price*Math.pow(1+esc, y-1);
+      const saveY = prod*priceY - maint;
+      cumulative += saveY;
+      if(paybackYear===null && cumulative >= cost) paybackYear = y-1 + (cost-(cumulative-saveY))/saveY;
+      points.push({y, cumulative});
+    }
+    $('sol_paybackOut').textContent = paybackYear ? fmt(paybackYear,1)+' yil' : '> 15 yil';
+    $('sol_total15Out').textContent = fmt(cumulative)+" so'm";
+
+    drawSolChart(points, cost);
+  }
+
+  function drawSolChart(points, cost){
+    const svg = $('solChart');
+    const w=640,h=190,padL=55,padB=28,padT=14,padR=14;
+    const plotW=w-padL-padR, plotH=h-padT-padB;
+    const years = points.length;
+    const maxY = Math.max(cost, points[years-1].cumulative)*1.05 || 1;
+    function pt(x,y){ return [padL+(x/years)*plotW, padT+plotH-(y/maxY)*plotH]; }
+    let path='';
+    points.forEach((p,i)=>{ const [px,py]=pt(p.y,Math.max(p.cumulative,0)); path += (i===0?'M':'L')+px.toFixed(1)+','+py.toFixed(1)+' '; });
+    const [cx1,cy1]=pt(0,cost), [cx2,cy2]=pt(years,cost);
+    let axis='';
+    for(let yr=0; yr<=years; yr+=3){ const [px]=pt(yr,0); axis += `<text x="${px}" y="${h-8}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="${cvar('--ink-dim')}">${yr}y</text>`; }
+    svg.innerHTML = `
+      <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="${cvar('--line')}" stroke-width="1"/>
+      <line x1="${padL}" y1="${h-padB}" x2="${w-padR}" y2="${h-padB}" stroke="${cvar('--line')}" stroke-width="1"/>
+      <line x1="${cx1}" y1="${cy1}" x2="${cx2}" y2="${cy2}" stroke="${cvar('--cyan')}" stroke-width="2" stroke-dasharray="4 4"/>
+      <path d="${path}" fill="none" stroke="${cvar('--amber')}" stroke-width="2.5"/>
+      ${axis}
+      <text x="${padL}" y="16" font-family="IBM Plex Mono, monospace" font-size="9" fill="${cvar('--cyan')}">tizim narxi</text>
+      <text x="${padL+80}" y="16" font-family="IBM Plex Mono, monospace" font-size="9" fill="${cvar('--amber')}">jamg'arma</text>`;
+  }
+  ['sol_cost','sol_pwr','sol_sun','sol_eff','sol_price','sol_esc','sol_deg','sol_maint'].forEach(id => $(id).addEventListener('input', computeSolar));
+
+  /* ================= MODULE 8: efficiency KPIs + recommendations ================= */
+  const clamp01 = x => Math.max(0, Math.min(1, x));
+  const kv = id => { const v = parseFloat($(id).value); return isFinite(v) && v>0 ? v : 0; };
+  const perFactor = () => parseFloat($('k_period').value) || 1;
+  const PER_NAMES = {'365':'kun','52.142857':'hafta','12':'oy','1':'yil'};
+  let prevPer = 1;
+  const nice = x => Math.round(x*100)/100;
+  function setYearly(id, yearly){ $(id).value = nice(yearly/perFactor()); }
+  function renderPeriodTable(Y, price){
+    const d = Y.map(v => v/365);
+    const cols = [['Kunlik',1/365],['Haftalik',7/365],['Oylik',1/12],['Yillik',1]];
+    const rows = [['Elektr, kVt·soat',Y[0]],['Issiqlik, kVt·soat',Y[1]],['Gaz, m³',Y[2]],['Jami sotib olingan energiya, kVt·soat',Y[3]],["Xarajat, so'm",Y[3]*price]];
+    $('k_periodTable').innerHTML = '<tr><th>Ko\'rsatkich</th>'+cols.map(c=>`<th>${c[0]}</th>`).join('')+'</tr>' +
+      rows.map((r,i)=>`<tr${i>=3?' style="font-weight:600"':''}><td>${r[0]}</td>`+cols.map(c=>`<td>${fmt(r[1]*c[1], r[1]*c[1]<100?1:0)}</td>`).join('')+'</tr>').join('');
+  }
+  function computeKpi(){
+    const area = Math.max(kv('k_area'),1), people = Math.max(kv('k_people'),1);
+    const pf = perFactor();
+    const E = kv('k_e')*pf, H = kv('k_h')*pf, Gm3 = kv('k_g')*pf, G = Gm3*GAL;
+    const price = parseFloat($('k_price').value), pefE = parseFloat($('k_pef').value);
+    const base = kv('k_base'), L0 = kv('k_l0'), L1 = kv('k_l1');
+    const sol = kv('k_sol'), resO = kv('k_res'), secPot = kv('k_secPot'), sec = Math.min(kv('k_sec'), secPot || kv('k_sec'));
+    $('k_priceVal').textContent = fmt(price)+" so'm"; $('k_pefVal').textContent = pefE.toFixed(1);
+
+    const F = E+H+G, R = sol+resO, C = F+R;
+    const EI1 = C/area, EI0 = base/area, perP = C/people;
+    const dEI = EI0>0 ? (EI0-EI1)/EI0 : 0;
+    const lossRed = L0>0 ? (L0-L1)/L0 : 0, lossShare = C>0 ? L1/C : 0;
+    const PE = E*pefE + (H+G)*1.1, PEperM2 = PE/area, pefAvg = C>0 ? PE/C : 0;
+    const resShare = C>0 ? R/C : 0, solCover = E>0 ? sol/E : 0;
+    const secRate = secPot>0 ? sec/secPot : 0;
+    const band = bands.find(b => EI1 <= b.max);
+    renderPeriodTable([E, H, Gm3, F + 0*R], price);
+
+    const sI = clamp01((300-EI1)/250), sL = clamp01(lossRed/0.30), sR = clamp01(resShare/0.30), sS = clamp01(secRate/0.70);
+    const score = Math.round(100*(0.35*sI + 0.25*sL + 0.20*sR + 0.20*sS));
+    $('k_score').textContent = score;
+    const grade = score>=80 ? 'Yuqori' : score>=60 ? 'Yaxshi' : score>=40 ? "O'rtacha" : 'Past';
+    const gEl = $('k_grade'); gEl.textContent = grade; gEl.classList.toggle('gd', score>=60);
+
+    const row = (k,v,frac) => `<div class="kpi-row"><span class="k">${k}</span><span class="v">${v}</span><div class="bar"><i style="width:${Math.round(clamp01(frac)*100)}%"></i></div></div>`;
+    const pc = x => (x*100).toFixed(1)+'%';
+    $('k_kpis').innerHTML =
+      row("Energiya sig'imi (klass "+band.l+")", fmt(EI1,1)+' kVt·soat/m²', sI) +
+      row("Bir kishiga sarf", fmt(perP)+' kVt·soat/kishi', 1-clamp01(perP/20000)) +
+      row("Sig'imning bazaviy yilga nisbatan kamayishi", pc(dEI), clamp01(dEI/0.3)) +
+      row("Yo'qotishlarning kamayishi", pc(lossRed), sL) +
+      row("Yo'qotishlar ulushi (jami sarfdan)", pc(lossShare), 1-clamp01(lossShare/0.5)) +
+      row("Birlamchi energiya", fmt(PE)+' kVt·soat ('+fmt(PEperM2)+' /m²)', 1-clamp01((pefAvg-1)/1.5)) +
+      row("Ikkilamchi resurslardan foydalanish", pc(secRate), sS) +
+      row("Qayta tiklanuvchi energiya ulushi", pc(resShare), sR) +
+      row("Quyosh bilan qoplangan elektr", pc(solCover), clamp01(solCover/0.5));
+
+    /* recommendations */
+    const recs = [];
+    const add = (pr,t,d,s) => recs.push({pr,t,d,s});
+    const sv = kwh => kwh>0 ? `Taxminiy tejam: ${fmt(kwh)} kVt·soat/yil ≈ ${fmt(kwh*price)} so'm/yil` : '';
+    if(L0>0 || L1>0){
+      if(lossRed < 0.20){
+        const s1 = Math.max(0, L0*0.8 - L1) || 0.1*L1;
+        add(lossShare>0.3 || lossRed<0.05 ? 1 : 2, "Yo'qotishlarni kamaytirish",
+          `Yo'qotishlar bazaviy yilga nisbatan ${pc(lossRed)} ga kamaygan (maqsad ≥ 20%), jami sarfning ${pc(lossShare)} ini tashkil etadi. Devor va tom izolyatsiyasi, eski derazalarni almashtirish, eshik-deraza atroflarini germetiklash, issiqlik tarmog'i quvurlarini izolyatsiyalash va avtomatik rostlash (ob-havo kompensatsiyasi) tavsiya etiladi.`, s1);
+      } else add(3,"Yo'qotishlarni ushlab turing", `Yo'qotishlar ${pc(lossRed)} ga kamaygan — maqsadga erishilgan. Natijani doimiy monitoring bilan saqlang.`,0);
+    }
+    if(EI1 > 150 || dEI < 0.10){
+      add(EI1>200 ? 1 : 2, "Energiya sig'imini qisqartirish",
+        `Sig'im ${fmt(EI1,1)} kVt·soat/m² (klass ${band.l}), bazaviy yilga nisbatan o'zgarish ${pc(dEI)}. Energiya menejment tizimi (ISO 50001), hisoblagichlarni xonalar/sexlar bo'yicha o'rnatish, LED yoritish, chastota o'zgartirgichli nasos va ventilyatorlar, vaqt bo'yicha rostlash tavsiya etiladi. Maqsad: jami sarfni 15% ga kamaytirish.`, 0.15*C);
+    }
+    if(E>0 || R>0){
+      if(resShare < 0.10){
+        const prodPerKw = 5*365*0.85, kw = Math.max(1, Math.round(0.3*E/prodPerKw*2)/2);
+        add(resShare<0.05 ? 1 : 2, "Qayta tiklanuvchi manbalarni joriy qilish",
+          `QTE ulushi atigi ${pc(resShare)}. Elektrning ~30% ini qoplash uchun taxminan ${kw} kVt quyosh tizimi o'rnatish mumkin (5 soat/kun, η=85% bo'yicha). Iqtisodiy qaytish muddatini Modul 7 da hisoblang. Issiq suv uchun quyosh kollektori yoki issiqlik nasosi ham ko'rib chiqing.`, 0.3*E);
+      } else if(resShare < 0.30){
+        add(2,"QTE ulushini oshirish", `QTE ulushi ${pc(resShare)}. 30% gacha oshirish uchun quyosh tizimini kengaytiring yoki issiqlik nasosi qo'shing.`, (0.30-resShare)*C);
+      } else add(3,"QTE ulushi yuqori", `QTE ulushi ${pc(resShare)} — yaxshi natija. Akkumulyator yoki tarmoqqa sotishni ko'rib chiqing.`,0);
+    }
+    if(secPot>0){
+      if(secRate < 0.5){
+        add(secRate<0.2 ? 1 : 2, "Ikkilamchi energiya resurslaridan foydalanish",
+          `Mavjud potensialning faqat ${pc(secRate)} i ishlatilmoqda. Tutun gazlari utilizatori (ekonomayzer), ventilyatsiya rekuperatori, kondensat va texnologik suv issiqligini qaytarish tavsiya etiladi. Maqsad: potensialning 60% ini ishlatish.`, Math.max(0, 0.6*secPot - sec));
+      } else add(3,"Ikkilamchi resurslardan yaxshi foydalanilmoqda", `Foydalanish darajasi ${pc(secRate)}. Qolgan potensial uchun yangi manbalarni qidiring.`,0);
+    } else add(3,"Ikkilamchi resurs potensialini baholang", "Chiqindi issiqlik manbalari (qozon tutuni, kompressor, sovutish tizimi, kanalizatsiya suvi) kiritilmagan. Energoauditda ularning potensialini o'lchang.",0);
+    if(F>0 && E/F > 0.5 && pefAvg > 1.7){
+      add(2,"Birlamchi energiya sarfini kamaytirish",
+        `Yakuniy energiyaning ${pc(E/F)} i elektr, shuning uchun birlamchi omil o'rtacha ${pefAvg.toFixed(2)}. Elektr isitgichlarni issiqlik nasosi (COP≈3) yoki gaz/markaziy issiqlikka almashtirish, quvvat koeffitsiyentini (cos φ) yaxshilash, yuqori FIK li dvigatellar tavsiya etiladi.`, 0);
+    }
+    if(score>=80) add(3,"Yuqori darajani saqlang","Ko'rsatkichlar yaxshi. Har oy monitoring yuriting, energiya menejment tizimini (ISO 50001) sertifikatlashni ko'rib chiqing.",0);
+    recs.sort((a,b)=> a.pr-b.pr || b.s-a.s);
+
+    const PRL = {1:['Yuqori', '--gG'], 2:["O'rta", '--amber'], 3:['Past', '--green']};
+    const recosHtml = recs.map(r => `
+      <div class="reco-item" style="border-left-color:${cvar(PRL[r.pr][1])}">
+        <div class="rt"><h4>${r.t}</h4><span class="chip">${PRL[r.pr][0]} ustuvorlik</span></div>
+        <p>${r.d}</p>${r.s>0 ? `<div class="sv">${sv(r.s)}</div>` : ''}
+      </div>`).join('');
+    const total = recs.filter(r=>r.pr<3).reduce((a,r)=>a+r.s,0);
+    const top = recs[0];
+    const summaryHtml = `<b style="color:var(--ink)">Xulosa:</b> samaradorlik indeksi ${score}/100 (${grade.toLowerCase()}). Birinchi navbatdagi yo'nalish — <b style="color:var(--ink)">${top.t.toLowerCase()}</b>.` +
+      (total>0 ? ` Barcha yuqori va o'rta ustuvorlikdagi choralar bo'yicha jami taxminiy imkoniyat: <b style="color:var(--green)">${fmt(total)} kVt·soat/yil ≈ ${fmt(total*price)} so'm/yil</b> (choralar ustma-ust tushishi mumkin).` : '');
+    ruleView = { recosHtml, summaryHtml };
+    lastKpi = { price, C, F, E, H, Gm3, area, people, base, L0, L1, sol, resO, secPot, sec, pefE, EI1, EI0, dEI, lossRed, lossShare, PE, pefAvg, resShare, solCover, secRate, score, grade, cls: band.l, perP };
+    renderReco(); scheduleAi(false);
+
+    $('k_formula').innerHTML =
+      `Jami energiya C = E + H + G·9,3 + QTE = ${fmt(E)} + ${fmt(H)} + ${fmt(Gm3)}·9,3 + ${fmt(R)} = ${fmt(C)} kVt·soat<br>` +
+      `EI = C / maydon = ${fmt(C)} / ${fmt(area)} = ${fmt(EI1,1)} kVt·soat/m²  (bazaviy: ${fmt(EI0,1)})<br>` +
+      `Yo'qotish kamayishi = (L₀ − L₁)/L₀ = (${fmt(L0)} − ${fmt(L1)}) / ${fmt(L0)} = ${pc(lossRed)}<br>` +
+      `PE = E·${pefE.toFixed(1)} + (H+G)·1,1 = ${fmt(PE)} kVt·soat<br>` +
+      `QTE ulushi = ${fmt(R)} / ${fmt(C)} = ${pc(resShare)};  ikkilamchi = ${fmt(sec)} / ${fmt(secPot)} = ${pc(secRate)}<br>` +
+      `Indeks = 100·(0,35·${sI.toFixed(2)} + 0,25·${sL.toFixed(2)} + 0,20·${sR.toFixed(2)} + 0,20·${sS.toFixed(2)}) = ${score}`;
+  }
+  const GAL = GAS_CAL;
+  ['k_area','k_people','k_e','k_h','k_g','k_price','k_base','k_l0','k_l1','k_pef','k_sol','k_res','k_secPot','k_sec'].forEach(id => $(id).addEventListener('input', computeKpi));
+  $('k_period').addEventListener('change', () => {
+    const oldF = prevPer, newF = perFactor();
+    ['k_e','k_h','k_g'].forEach(id => { const v = parseFloat($(id).value); if(isFinite(v)) $(id).value = nice(v*oldF/newF); });
+    prevPer = newF;
+    document.querySelectorAll('.k-per').forEach(el => el.textContent = PER_NAMES[String($('k_period').value)] || 'yil');
+    computeKpi();
+  });
+
+  /* ---------- AI recommendations (sample capability) ---------- */
+  let ruleView = null, lastKpi = null;
+  const ai = { fn:null, html:'', summary:'', key:'', ok:false, timer:null, ctl:null, auto:true, ready:false, dead:false };
+  const esc = t => String(t==null?'':t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const setAiStatus = (t, busy) => { const el=$('k_aiStatus'); el.textContent=t||''; el.classList.toggle('busy', !!busy); };
+  function renderReco(){
+    if(!ruleView) return;
+    if(ai.ok){ $('k_summary').innerHTML = ai.summary; $('k_recos').innerHTML = ai.html; $('k_src').textContent = 'Claude AI'; $('k_src').classList.add('gd'); }
+    else { $('k_summary').innerHTML = ruleView.summaryHtml; $('k_recos').innerHTML = ruleView.recosHtml; $('k_src').textContent = 'qoidalar (zaxira)'; $('k_src').classList.remove('gd'); }
+  }
+  function aiPayload(){
+    const k = lastKpi, r1 = (x,d=1)=> Math.round(x*Math.pow(10,d))/Math.pow(10,d);
+    return {
+      obyekt:{ maydon_m2:k.area, odamlar:k.people },
+      joriy_yillik_sarf_kWh:{ elektr:k.E, issiqlik:k.H, gaz_m3:k.Gm3, gaz_kWh:r1(k.Gm3*GAL,0), qte_quyosh:k.sol, qte_boshqa:k.resO, jami:r1(k.C,0) },
+      bazaviy_yil:{ jami_energiya_kWh:k.base, yoqotishlar_kWh:k.L0 },
+      joriy_yoqotishlar_kWh:k.L1,
+      korsatkichlar:{ energiya_sigimi_kWh_m2:r1(k.EI1), bazaviy_sigim_kWh_m2:r1(k.EI0), sigim_kamayishi_foiz:r1(k.dEI*100), sigim_klassi:k.cls,
+        bir_kishiga_kWh:r1(k.perP,0), yoqotish_kamayishi_foiz:r1(k.lossRed*100), yoqotish_ulushi_foiz:r1(k.lossShare*100),
+        birlamchi_energiya_kWh:r1(k.PE,0), birlamchi_omil_elektr:k.pefE, ortacha_birlamchi_omil:r1(k.pefAvg,2),
+        ikkilamchi_potensial_kWh:k.secPot, ikkilamchi_ishlatilgan_kWh:k.sec, ikkilamchi_foydalanish_foiz:r1(k.secRate*100),
+        qte_ulushi_foiz:r1(k.resShare*100), quyosh_bilan_qoplangan_elektr_foiz:r1(k.solCover*100), samaradorlik_indeksi_0_100:k.score },
+      ortacha_energiya_narxi_som_kWh:k.price
+    };
+  }
+  function aiPrompt(payload){
+    return `Sen energiya samaradorligi va energoaudit bo'yicha tajribali ekspertsan (O'zbekiston sharoiti: gaz 9,3 kVt·soat/m³, elektr bilan ta'minot asosan issiqlik elektr stansiyalaridan). Quyida bino/korxona uchun hisoblangan energiya samaradorligi ko'rsatkichlari berilgan. Ularni tahlil qilib, ANIQ shu sonlarga mos tavsiyalar ber.
+
+MA'LUMOTLAR (JSON):
+${JSON.stringify(payload)}
+
+MEZONLAR: energiya sig'imi klassi A<50, B<100, C<150, D<200, E<250, F<300, G>300 kVt·soat/m²·yil; yo'qotishlarning kamayishi maqsadi ≥20%; QTE ulushi maqsadi ≥30%; ikkilamchi resurslardan foydalanish maqsadi ≥60%; elektrning birlamchi omili yuqori bo'lsa elektr isitish samarasiz.
+
+TALABLAR:
+- Faqat o'zbek tilida (lotin yozuvi), qisqa va aniq yoz.
+- Har bir tavsiyada kiritilgan sonlarga (foiz, kVt·soat, klass) tayan, umumiy gaplardan qoch.
+- 3 tadan 6 tagacha tavsiya ber, eng ta'sirlisi birinchi. Ko'rsatkichlar yaxshi bo'lsa, buni ayt va saqlash/keyingi qadam tavsiyasini ber.
+- "priority": 1 (yuqori), 2 (o'rta) yoki 3 (past).
+- "saving_kwh": shu chorani amalga oshirgandagi yillik taxminiy tejam (kVt·soat, son); aniq baholab bo'lmasa 0. Jami energiyadan oshmasin. Uskuna narxlarini to'qima.
+- "text": 2–3 gap: nima uchun va nima qilish kerak (aniq choralar).
+- "summary": 2 gapli umumiy xulosa (indeks va asosiy yo'nalish).
+
+FAQAT bitta JSON obyekt qaytar, boshqa matn yozma:
+{"summary":"...","items":[{"priority":1,"title":"...","text":"...","saving_kwh":0}]}`;
+  }
+  function renderAi(res){
+    const k = lastKpi, PRL = {1:['Yuqori','--gG'],2:["O'rta",'--amber'],3:['Past','--green']};
+    const items = (Array.isArray(res && res.items) ? res.items : []).filter(i => i && i.title && i.text).slice(0,6);
+    if(!items.length) throw {code:'invalid_json', message:'empty'};
+    let total = 0;
+    ai.html = items.map(i => {
+      const pr = [1,2,3].includes(Number(i.priority)) ? Number(i.priority) : 2;
+      let sv = Math.max(0, Math.min(Number(i.saving_kwh)||0, k.C*0.6)); if(pr<3) total += sv;
+      return `<div class="reco-item" style="border-left-color:${cvar(PRL[pr][1])}">
+        <div class="rt"><h4>${esc(i.title)}</h4><span class="chip">${PRL[pr][0]} ustuvorlik</span></div>
+        <p>${esc(i.text)}</p>${sv>0 ? `<div class="sv">Taxminiy tejam: ${fmt(sv)} kVt·soat/yil ≈ ${fmt(sv*k.price)} so'm/yil</div>` : ''}</div>`;
+    }).join('');
+    ai.summary = `<b style="color:var(--ink)">AI xulosasi:</b> ${esc(res.summary || '')}` +
+      (total>0 ? ` Yuqori va o'rta ustuvorlikdagi choralar bo'yicha taxminiy imkoniyat: <b style="color:var(--green)">${fmt(total)} kVt·soat/yil ≈ ${fmt(total*k.price)} so'm/yil</b> (choralar ustma-ust tushishi mumkin).` : '');
+    ai.ok = true; renderReco();
+  }
+  const AI_ERR = { not_granted:"AI ishlatishga ruxsat berilmadi. Zaxira (qoidalarga asoslangan) tavsiyalar ko'rsatilmoqda.", sampling_disabled:"Bu akkauntda Claude mavjud emas. Zaxira tavsiyalar ko'rsatilmoqda.",
+    rate_limited:"So'rovlar limitiga yetildi. Birozdan keyin «AI dan so'rash» ni bosing.", invalid_json:"AI javobi o'qilmadi. «AI dan so'rash» ni qayta bosing.", refused:"AI bu so'rovga javob bermadi.", upstream_error:"Ulanishda xato. «AI dan so'rash» ni qayta bosing." };
+  async function runAi(){
+    if(!lastKpi || !ai.fn) return;
+    const payload = aiPayload(), key = JSON.stringify(payload);
+    if(ai.ok && key === ai.key){ setAiStatus('AI tavsiyalari joriy ma\'lumotlarga mos.'); return; }
+    if(ai.ctl) ai.ctl.abort();
+    const ctl = new AbortController(); ai.ctl = ctl;
+    $('k_aiStop').hidden = false; setAiStatus('Claude AI tahlil qilmoqda… (bir necha soniya)', true);
+    try{
+      const res = await ai.fn.json(aiPrompt(payload), { modelTier:'default', signal: ctl.signal });
+      if(ctl.signal.aborted) return;
+      renderAi(res); ai.key = key; setAiStatus('Claude AI tahlili tayyor — ma\'lumot o\'zgarsa avtomatik yangilanadi.');
+    }catch(e){
+      const code = e && e.code;
+      if(code === 'cancelled') return;
+      if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(code)){ ai.dead = true; $('k_aiBtn').hidden = true; $('k_aiAuto').parentElement.hidden = true; }
+      setAiStatus(AI_ERR[code] || AI_ERR.upstream_error); ai.ok = false; renderReco();
+    }finally{
+      if(ai.ctl === ctl){ ai.ctl = null; $('k_aiStop').hidden = true; if($('k_aiStatus').classList.contains('busy')) setAiStatus(''); }
+    }
+  }
+  function scheduleAi(immediate){
+    clearTimeout(ai.timer);
+    if(!ai.ready || ai.dead || !$('t8').classList.contains('active')) return;
+    if(!immediate && !ai.auto){ if(ai.ok) setAiStatus("Ma'lumot o'zgargan. Yangilash uchun «AI dan so'rash» ni bosing."); return; }
+    if(!immediate) setAiStatus("Ma'lumot o'zgardi — AI tahlili yangilanadi…", true);
+    ai.timer = setTimeout(runAi, immediate ? 0 : 2200);
+  }
+  /* claude.ai tashqarisida AI: oraliq server (Cloudflare Worker) manzili. Bo'sh bo'lsa AI o'chiq, zaxira tavsiyalar ishlaydi. */
+  const AI_PROXY_URL = "https://cool-limit-7a0f.jahongirbozorov004.workers.dev";
+  function proxyAi(url){
+    return { json: async (prompt, opts) => {
+      let r;
+      try{
+        r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt}), signal: opts && opts.signal });
+      }catch(e){ if(e && e.name === 'AbortError') throw {code:'cancelled'}; throw {code:'upstream_error'}; }
+      if(r.status === 429) throw {code:'rate_limited'};
+      if(!r.ok) throw {code:'upstream_error'};
+      const j = await r.json();
+      const t = String(j.text || ''), a = t.indexOf('{'), b = t.lastIndexOf('}');
+      if(a < 0 || b <= a) throw {code:'invalid_json'};
+      try{ return JSON.parse(t.slice(a, b+1)); }catch(e){ throw {code:'invalid_json'}; }
+    }};
+  }
+  (async () => {
+    try{
+      let c = window.claude && window.claude.use ? await window.claude.use('sample') : null;
+      if(!c && AI_PROXY_URL) c = proxyAi(AI_PROXY_URL);
+      if(!c){ $('k_aiBtn').hidden = true; $('k_aiAuto').parentElement.hidden = true; setAiStatus("AI bu ko'rinishda mavjud emas — qoidalarga asoslangan tavsiyalar ko'rsatilmoqda."); return; }
+      ai.fn = c; ai.ready = true;
+      if($('t8').classList.contains('active')) scheduleAi(true);
+    }catch(e){ ai.dead = true; }
+  })();
+  $('k_aiAuto').addEventListener('change', e => { ai.auto = e.target.checked; if(ai.auto) scheduleAi(false); });
+  $('k_aiBtn').addEventListener('click', () => scheduleAi(true));
+  $('k_aiStop').addEventListener('click', () => { if(ai.ctl) ai.ctl.abort(); clearTimeout(ai.timer); $('k_aiStop').hidden = true; setAiStatus("To'xtatildi."); });
+  document.querySelector('[data-tab="t8"]').addEventListener('click', () => scheduleAi(!!ai.auto));
+  computeKpi();
+
+  /* ---------- THEME TOGGLE ---------- */
+  const THEME_KEY = 'energoNazoratTheme_v1';
+  function applyTheme(t){
+    if(t === 'light'){ document.documentElement.setAttribute('data-theme','light'); $('themeBtn').textContent = '🌙 Qorong\'u tema'; }
+    else { document.documentElement.removeAttribute('data-theme'); $('themeBtn').textContent = "☀ Yorug' tema"; }
+    // re-draw dynamic SVG/colors so charts pick up the new palette
+    computeM2(); feGroup.compute(); fhGroup.compute(); fgGroup.compute(); renderCalendar(); computeSolar();
+  }
+  let savedTheme = null;
+  try{ savedTheme = localStorage.getItem(THEME_KEY); }catch(e){}
+  if(savedTheme === 'light'){ document.documentElement.setAttribute('data-theme','light'); $('themeBtn').textContent = '🌙 Qorong\'u tema'; }
+  $('themeBtn').addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+  });
+
+  /* init */
+  computeM2();
+  renderObjList();
+  renderCalendar();
+  computeSolar();
+  computeCooling();
+})();
+</script>
+
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+</body>
+</html>
